@@ -85,23 +85,3 @@ export default function HomePage() {
     </section>
   );
 }
-
-                  className="w-full bg-logo-cyan py-3 rounded-lg font-medium mb-3 text-white text-lg"
-                  onClick={() => window.open("https://buy.stripe.com/link", "_blank")}
-                >
-                  Subscribe Now
-                </button>
-              </>
-            )}
-            <button
-              className="w-full bg-white/10 hover:bg-white/20 text-black py-2 rounded-lg mt-2"
-              onClick={() => setShowRefillModal(false)}
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-    </main>
-  );
-}
