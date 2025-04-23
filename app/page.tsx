@@ -10,7 +10,8 @@ import SignatureEventButton from "./components/SignatureEventButton";
 import MagicLinkLogin from "./components/MagicLinkLogin";
 import { useUser } from "../contexts/user-context";
 
-function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () => void, attendee: any }) {
+type Attendee = { name: string; email: string; id: string; confirmed: boolean };
+function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () => void, attendee: Attendee }) {
   if (!open || !attendee) return null;
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">

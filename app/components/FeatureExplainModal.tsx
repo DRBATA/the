@@ -1,6 +1,4 @@
-import { useState } from "react";
-
-export default function FeatureExplainModal({ open, onClose, feature, onLogin }: { open: boolean, onClose: () => void, feature: string, onLogin: () => void }) {
+export default function FeatureExplainModal({ open, onClose, feature }: { open: boolean, onClose: () => void, feature: string | null }) {
   if (!open) return null;
 
   let title = "";
