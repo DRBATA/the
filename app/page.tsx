@@ -35,7 +35,7 @@ export default function HomePage() {
   const [ticketOpen, setTicketOpen] = useState(false);
   const [explainModal, setExplainModal] = useState<null | string>(null);
   const [loginOpen, setLoginOpen] = useState(false);
-  const { user, isLoading, logout } = useUser();
+  const { user, isLoading, logout, addRefill, subscribe } = useUser();
 
   // Placeholder for attendee logic (to be re-integrated if needed)
   const attendee = null;
@@ -48,7 +48,7 @@ export default function HomePage() {
   };
 
   // Unified action handler for all main actions
-  const handleAction = (feature: string) => {
+  const handleAction = async (feature: string) => {
     if (!user) {
       setExplainModal(feature);
       return;
@@ -57,11 +57,17 @@ export default function HomePage() {
     if (feature === "findRefill") {
       // TODO: Open Find Refill modal/flow
     } else if (feature === "getRefill") {
-      // TODO: Open Get Refill modal/flow
+      const ok = await addRefill();
+      if (ok) {
+        window.showToast?.("🎉 Refill added!", "success");
+      } else {
+        window.showToast?.("Subscribe for unlimited refills after 5", "info");
+      }
     } else if (feature === "signatureEvent") {
       handleBuyTicket();
     } else if (feature === "subscribe") {
-      // TODO: Open Subscribe modal/flow
+      await subscribe();
+      window.showToast?.("Subscription activated! Enjoy unlimited refills.", "success");
     }
   };
 
@@ -76,47 +82,47 @@ export default function HomePage() {
         className="z-0"
       />
       <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center z-10">
-  <div className="flex flex-col space-y-4 w-full max-w-xs">
-    <FindRefillButton onClick={() => handleAction('findRefill')} />
-    <GetRefillButton onClick={() => handleAction('getRefill')} />
-    {/* Log In/Profile Button, context-aware */}
-    {isLoading ? (
-      <div className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-gray-100 text-gray-400 text-center">Loading...</div>
-    ) : user ? (
-      <div className="flex flex-col items-center w-full">
-        <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.username || user.email}</span></div>
-        <div className="mb-2 text-sm text-emerald-100">Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span></div>
-        <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
-          Log Out
-        </button>
-      </div>
-    ) : (
-      <LoginButton onClick={() => setLoginOpen(true)} />
-    )}
-    <SubscribeButton onClick={() => handleAction('subscribe')} />
-    <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
-  </div>
-  {/* Feature Explanation Modal (for logged out users) */}
-  {explainModal && (
-    <FeatureExplainModal
-      open={!!explainModal}
-      feature={explainModal}
-      onClose={() => setExplainModal(null)}
+        <div className="flex flex-col space-y-4 w-full max-w-xs">
+          <FindRefillButton onClick={() => handleAction('findRefill')} />
+          <GetRefillButton onClick={() => handleAction('getRefill')} />
+          {/* Log In/Profile Button, context-aware */}
+          {isLoading ? (
+            <div className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-gray-100 text-gray-400 text-center">Loading...</div>
+          ) : user ? (
+            <div className="flex flex-col items-center w-full">
+              <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.username || user.email}</span></div>
+              <div className="mb-2 text-sm text-emerald-100">Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span></div>
+              <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
+                Log Out
+              </button>
+            </div>
+          ) : (
+            <LoginButton onClick={() => setLoginOpen(true)} />
+          )}
+          <SubscribeButton onClick={() => handleAction('subscribe')} subscribed={user?.water_subscription_status === 'active'} />
+          <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
+        </div>
+        {/* Feature Explanation Modal (for logged out users) */}
+        {explainModal && (
+          <FeatureExplainModal
+            open={!!explainModal}
+            feature={explainModal}
+            onClose={() => setExplainModal(null)}
 
-    />
-  )}
+          />
+        )}
 
-  {/* Login Modal (triggered only from within FeatureExplainModal) */}
-  {loginOpen && (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xs relative">
-        <button className="absolute top-3 right-5 text-2xl text-gray-400 hover:text-gray-600" onClick={() => setLoginOpen(false)}>×</button>
-        <h2 className="text-xl font-bold mb-4 text-center text-emerald-700">Sign In</h2>
-        <MagicLinkLogin />
+        {/* Login Modal (triggered only from within FeatureExplainModal) */}
+        {loginOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+            <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xs relative">
+              <button className="absolute top-3 right-5 text-2xl text-gray-400 hover:text-gray-600" onClick={() => setLoginOpen(false)}>×</button>
+              <h2 className="text-xl font-bold mb-4 text-center text-emerald-700">Sign In</h2>
+              <MagicLinkLogin />
+            </div>
+          </div>
+        )}
       </div>
-    </div>
-  )}
-</div>
       <AttendeeModal open={modalOpen} onClose={() => setModalOpen(false)} onSuccess={handleModalSuccess} />
       <TicketModal open={ticketOpen} onClose={() => setTicketOpen(false)} attendee={attendee} />
     </section>

@@ -1,12 +1,13 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 import { db } from "../lib/dexieClient";
 import { supabase } from "../lib/supabaseClient";
 
-const CONFETTI_COLORS = ["#00C2A0", "#00796B", "#FFD600", "#3DDC97"];
+const CONFETTI_COLORS = ["#00C2A0", "#00796B", "#FFD600", "#3DDC97"]; // Brand colors
 
-export default function MagicLinkLogin() {
+export default function LoginWithConfetti() {
   const [email, setEmail] = useState("");
   const [showConfetti, setShowConfetti] = useState(false);
   const [message, setMessage] = useState("");

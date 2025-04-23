@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "../lib/supabaseClient";
+import { db } from "../lib/dexieClient";
 
 export interface UserProfile {
   id: string;
@@ -23,6 +24,8 @@ interface UserContextType {
   logout: () => void;
   updateUser: (data: Partial<UserProfile>) => Promise<void>;
   claimFirstFreeRefill: () => Promise<boolean>;
+  addRefill: () => Promise<boolean>;
+  subscribe: () => Promise<void>;
 } 
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -57,9 +60,22 @@ export function UserProvider({ children }: { children: ReactNode }) {
             whatsapp_number: data.whatsapp_number,
             created_at: data.created_at,
           });
+          // Cache profile locally for offline access
+          db.profiles.put({
+            id: data.id,
+            email: data.email,
+            water_bottle_saved: data.water_bottle_saved || 0,
+            water_subscription_status: data.water_subscription_status,
+            membership_status: data.membership_status,
+          });
         } else {
           // No profile yet or other fetch error – still consider the user logged in with minimal data
           setUser({
+            id: session.user.id,
+            email: session.user.email ?? "",
+            water_bottle_saved: 0,
+          });
+          db.profiles.put({
             id: session.user.id,
             email: session.user.email ?? "",
             water_bottle_saved: 0,
@@ -105,6 +121,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
       .select()
       .single();
     if (updated) setUser({ ...user, ...updated });
+    if (updated) {
+      db.profiles.put({
+        id: updated.id,
+        email: updated.email,
+        water_bottle_saved: updated.water_bottle_saved ?? user.water_bottle_saved,
+        water_subscription_status: updated.water_subscription_status ?? user.water_subscription_status,
+        membership_status: updated.membership_status ?? user.membership_status,
+      });
+    }
   };
 
   // Claim first free refill
@@ -117,10 +142,37 @@ export function UserProvider({ children }: { children: ReactNode }) {
     return true;
   };
 
+  // Check if user can perform a refill
+  const canRefill = () => {
+    if (!user) return false;
+    if (user.water_bottle_saved < 5) return true;
+    return user.water_subscription_status === "active";
+  };
+
+  // Add a refill if allowed, update Supabase & Dexie
+  const addRefill = async (): Promise<boolean> => {
+    if (!user) return false;
+    if (!canRefill()) return false;
+    const newCount = (user.water_bottle_saved || 0) + 1;
+    setUser({ ...user, water_bottle_saved: newCount });
+    db.profiles.put({ ...user, water_bottle_saved: newCount });
+    // Fire & forget supabase update
+    supabase.from("profiles").update({ water_bottle_saved: newCount }).eq("id", user.id);
+    return true;
+  };
+
+  // Mark subscription as active (temporary local action)
+  const subscribe = async () => {
+    if (!user) return;
+    if (user.water_subscription_status === "active") return;
+    setUser({ ...user, water_subscription_status: "active" });
+    db.profiles.put({ ...user, water_subscription_status: "active" });
+    supabase.from("profiles").update({ water_subscription_status: "active" }).eq("id", user.id);
+  };
 
   return (
     <UserContext.Provider
-      value={{ user, isLoading, login, logout, updateUser, claimFirstFreeRefill }}
+      value={{ user, isLoading, login, logout, updateUser, claimFirstFreeRefill, addRefill, subscribe }}
     >
       {children}
     </UserContext.Provider>
