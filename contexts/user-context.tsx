@@ -42,12 +42,23 @@ export function UserProvider({ children }: { children: ReactNode }) {
       console.log("Supabase session after magic link:", session);
       if (session?.user) {
         // Fetch profile from 'profiles' table
-        const { data, error } = await supabase
+        let { data, error } = await supabase
           .from("profiles")
-          .select("id, email, username, water_subscription_status, membership_status, water_bottle_saved, medical_exemption, confirmed_address, whatsapp_number, created_at")
+          .select("id, email, water_bottle_saved, water_subscription_status, membership_status")
           .eq("id", session.user.id)
           .single();
-        if (error) console.log("Profile fetch error:", error);
+        if (error?.code === 'PGRST116' || error?.code === '42703' || error?.message?.includes('does not exist')) {
+          // Profile row does not exist or column mismatch, create a minimal row
+          const { data: created, error: insertError } = await supabase
+            .from("profiles")
+            .insert({ id: session.user.id, email: session.user.email ?? "", water_bottle_saved: 0 })
+            .select()
+            .single();
+          if (insertError) console.log("Profile creation error:", insertError);
+          data = created;
+        } else if (error) {
+          console.log("Profile fetch error:", error);
+        }
         if (data) {
           setUser({
             id: data.id,
