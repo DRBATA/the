@@ -114,7 +114,7 @@ export default function HomePage() {
       <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xs relative">
         <button className="absolute top-3 right-5 text-2xl text-gray-400 hover:text-gray-600" onClick={() => setLoginOpen(false)}>×</button>
         <h2 className="text-xl font-bold mb-4 text-center text-emerald-700">Sign In</h2>
-        <MagicLinkLogin buttonLabel="Send Login Link" />
+        <MagicLinkLogin />
       </div>
     </div>
   )}
