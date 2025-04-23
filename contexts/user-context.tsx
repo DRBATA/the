@@ -37,8 +37,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Fetch user profile from Supabase after login
   useEffect(() => {
     const getProfile = async () => {
-  const { data: { session } } = await supabase.auth.getSession();
-  console.log("Supabase session after magic link:", session);
+      // Try Supabase session first
+      const { data: { session } } = await supabase.auth.getSession();
+      console.log("Supabase session after magic link:", session);
       if (session?.user) {
         // Fetch profile from 'profiles' table
         const { data, error } = await supabase
@@ -82,14 +83,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
           });
         }
       } else {
-        setUser(null);
+        // No Supabase session, try Dexie offline profile
+        const cached = await db.profiles.toCollection().first();
+        if (cached) {
+          setUser({
+            id: cached.id,
+            email: cached.email,
+            water_bottle_saved: cached.water_bottle_saved,
+            water_subscription_status: cached.water_subscription_status,
+            membership_status: cached.membership_status,
+          });
+        } else {
+          setUser(null);
+        }
       }
       setIsLoading(false);
     };
     getProfile();
     // Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (!session?.user) setUser(null);
+      if (!session?.user) {
+        // Do not clear Dexie profile on logout, just set user to null
+        setUser(null);
+      }
       else getProfile();
     });
     return () => listener.subscription.unsubscribe();
@@ -109,6 +125,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
+    // Dexie profile is intentionally NOT cleared, so offline mode works
   };
 
   // Update user profile in Supabase
@@ -156,8 +173,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const newCount = (user.water_bottle_saved || 0) + 1;
     setUser({ ...user, water_bottle_saved: newCount });
     db.profiles.put({ ...user, water_bottle_saved: newCount });
-    // Fire & forget supabase update
-    supabase.from("profiles").update({ water_bottle_saved: newCount }).eq("id", user.id);
+    // Try to sync if online and logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      supabase.from("profiles").update({ water_bottle_saved: newCount }).eq("id", user.id);
+    }
     return true;
   };
 
@@ -167,7 +187,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (user.water_subscription_status === "active") return;
     setUser({ ...user, water_subscription_status: "active" });
     db.profiles.put({ ...user, water_subscription_status: "active" });
-    supabase.from("profiles").update({ water_subscription_status: "active" }).eq("id", user.id);
+    // Try to sync if online and logged in
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      supabase.from("profiles").update({ water_subscription_status: "active" }).eq("id", user.id);
+    }
   };
 
   return (
