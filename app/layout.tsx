@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import Header from "./components/Header";
+
 import { UserProvider } from "../contexts/user-context";
 import { ToastContainer } from "./components/ToastNotification";
 
@@ -14,7 +14,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en">
       <body>
         <UserProvider>
-          <Header />
           {children}
           <ToastContainer />
         </UserProvider>
