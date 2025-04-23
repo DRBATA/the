@@ -90,7 +90,7 @@ export default function HomePage() {
             <div className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-gray-100 text-gray-400 text-center">Loading...</div>
           ) : user ? (
             <div className="flex flex-col items-center w-full">
-              <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.username || user.email}</span></div>
+              <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.email}</span></div>
               <div className="mb-2 text-sm text-emerald-100">Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span></div>
               <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
                 Log Out
