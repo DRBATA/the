@@ -34,7 +34,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
   // Fetch user profile from Supabase after login
   useEffect(() => {
     const getProfile = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+  const { data: { session } } = await supabase.auth.getSession();
+  console.log("Supabase session after magic link:", session);
       if (session?.user) {
         // Fetch profile from 'profiles' table
         const { data, error } = await supabase
