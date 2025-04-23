@@ -43,6 +43,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
           .select("id, email, username, water_subscription_status, membership_status, water_bottle_saved, medical_exemption, confirmed_address, whatsapp_number, created_at")
           .eq("id", session.user.id)
           .single();
+        if (error) console.log("Profile fetch error:", error);
         if (data) {
           setUser({
             id: data.id,
@@ -56,30 +57,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
             whatsapp_number: data.whatsapp_number,
             created_at: data.created_at,
           });
-        } else if (error && error.code === "PGRST116") {
-          // No profile yet: create one
-          const { data: newProfile } = await supabase
-            .from("profiles")
-            .insert({
-              id: session.user.id,
-              email: session.user.email,
-              water_bottle_saved: 0,
-              water_subscription_status: 'inactive',
-              membership_status: 'none',
-            })
-            .select()
-            .single();
+        } else {
+          // No profile yet or other fetch error – still consider the user logged in with minimal data
           setUser({
-            id: newProfile.id,
-            email: newProfile.email,
-            username: newProfile.username,
-            water_subscription_status: newProfile.water_subscription_status,
-            membership_status: newProfile.membership_status,
-            water_bottle_saved: newProfile.water_bottle_saved || 0,
-            medical_exemption: newProfile.medical_exemption,
-            confirmed_address: newProfile.confirmed_address,
-            whatsapp_number: newProfile.whatsapp_number,
-            created_at: newProfile.created_at,
+            id: session.user.id,
+            email: session.user.email ?? "",
+            water_bottle_saved: 0,
           });
         }
       } else {
