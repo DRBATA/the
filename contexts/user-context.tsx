@@ -81,7 +81,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Magic link login
   const login = async (email: string) => {
-    await supabase.auth.signInWithOtp({ email });
+    await supabase.auth.signInWithOtp({ 
+      email,
+      options: {
+        emailRedirectTo: `${location.origin}/auth/callback`,
+      },
+    });
   };
 
   // Logout
