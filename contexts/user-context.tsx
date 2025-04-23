@@ -7,14 +7,9 @@ import { db } from "../lib/dexieClient";
 export interface UserProfile {
   id: string;
   email: string;
-  username?: string;
-  water_subscription_status?: string; // e.g. 'active', 'inactive', etc.
-  membership_status?: string; // e.g. 'none', 'silver', 'gold', 'platinum'
+  water_subscription_status?: string;
+  membership_status?: string;
   water_bottle_saved: number;
-  medical_exemption?: boolean;
-  confirmed_address?: string;
-  whatsapp_number?: string;
-  created_at?: string;
 } 
 
 interface UserContextType {
@@ -63,14 +58,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setUser({
             id: data.id,
             email: data.email,
-            username: data.username,
             water_subscription_status: data.water_subscription_status,
             membership_status: data.membership_status,
             water_bottle_saved: data.water_bottle_saved || 0,
-            medical_exemption: data.medical_exemption,
-            confirmed_address: data.confirmed_address,
-            whatsapp_number: data.whatsapp_number,
-            created_at: data.created_at,
           });
           // Cache profile locally for offline access
           db.profiles.put({
