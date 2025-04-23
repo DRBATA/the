@@ -102,10 +102,7 @@ export default function HomePage() {
       open={!!explainModal}
       feature={explainModal}
       onClose={() => setExplainModal(null)}
-      onLogin={() => {
-        setExplainModal(null);
-        setLoginOpen(true);
-      }}
+
     />
   )}
 
