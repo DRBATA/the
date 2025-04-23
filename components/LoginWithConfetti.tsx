@@ -35,7 +35,8 @@ export default function LoginWithConfetti() {
         `🎉 Email sent! Check your inbox for your magic link.`
       );
       setTimeout(() => setShowConfetti(false), 2000);
-    } catch (e) {
+    } catch (error) {
+      console.error("Magic link error:", error);
       setMessage("Failed to send magic link. Try again.");
     } finally {
       setLoading(false);
