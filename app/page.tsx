@@ -9,8 +9,9 @@ import LoginButton from "./components/LoginButton";
 import SignatureEventButton from "./components/SignatureEventButton";
 import MagicLinkLogin from "./components/MagicLinkLogin";
 import { useUser } from "../contexts/user-context";
-import { chooseVenueOffer } from "../utils/venueSelector";
-import { refillFacts } from "../lib/refillFacts";
+
+// import { chooseVenueOffer } from "../utils/venueSelector"; // removed – no longer needed
+// import { refillFacts } from "../lib/refillFacts"; // removed – no longer needed
 
 type Attendee = { name: string; email: string; id: string; confirmed: boolean };
 function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () => void, attendee: Attendee | null }) {
@@ -33,20 +34,7 @@ function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () =
 import FeatureExplainModal from "./components/FeatureExplainModal";
 import LocationModal from "../components/LocationModal";
 
-const firstFiveFacts = [
-  "You just saved your first bottle—way to go!",
-  "Second refill—keep it up!",
-  "Three is a magic number for the planet!",
-  "Four bottles saved, four times the impact!",
-  "Five bottles—you're a refill hero!",
-];
-const sixToTenFacts = [
-  "Six refills—your habit is making waves!",
-  "Seven up! The ocean thanks you.",
-  "Eight bottles saved—plastic-free is the way!",
-  "Nine refills—almost at double digits!",
-  "Ten bottles! You're a sustainability star!",
-];
+// firstFiveFacts / sixToTenFacts removed – no longer needed after gating change
 
 export default function HomePage() {
   const [locationModalOpen, setLocationModalOpen] = useState(false);
