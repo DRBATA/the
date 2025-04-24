@@ -4,26 +4,35 @@ import { useCallback, useMemo, useState } from "react";
 import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles, ExternalLink } from "lucide-react";
 
 import { venues, Venue } from "../lib/venues";
+import { RefillMap } from "./RefillMap";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { calculateDistance, formatDistance } from "../utils/distance";
 
 interface Props {
   open: boolean;
   onCloseAction: () => void;
+  onInfoOpen?: () => void;
 }
 
+import { VenueRole } from "../lib/venues";
+
 export default function LocationModal({ open, onCloseAction }: Props) {
+  const [typeFilter, setTypeFilter] = useState<VenueRole | "all">("all");
   const { position, requestPermission, permissionDenied } = useGeolocation();
   const [selected, setSelected] = useState<number | null>(null);
 
+  const filteredVenues = useMemo(() => {
+    return typeFilter === "all" ? venues : venues.filter(v => v.role === typeFilter);
+  }, [typeFilter]);
+
   const sortedVenues = useMemo(() => {
-    if (!position) return venues;
-    return [...venues].sort((a, b) => {
+    if (!position) return filteredVenues;
+    return [...filteredVenues].sort((a, b) => {
       const dA = calculateDistance(position.latitude, position.longitude, a.coordinates.latitude, a.coordinates.longitude);
       const dB = calculateDistance(position.latitude, position.longitude, b.coordinates.latitude, b.coordinates.longitude);
       return dA - dB;
     });
-  }, [position]);
+  }, [position, filteredVenues]);
 
   const getDistance = useCallback(
     (venue: Venue) => {
@@ -116,21 +125,22 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                         <div className="flex items-start mb-2">
                           <Info className="h-4 w-4 text-logo-cyan mr-2 mt-1 flex-shrink-0" />
                           <div>
-                            <h5 className="text-white font-medium mb-1">Why it&apos;s cool</h5>
+                            <h5 className="text-white font-medium mb-1">Why it's cool</h5>
                             <p className="text-white/80 text-sm">{v.reasons}</p>
                           </div>
                         </div>
                       </div>
 
-                      <div className="bg-white/5 p-4 rounded-lg mb-4">
-                        <div className="flex items-start">
-                          <Sparkles className="h-4 w-4 text-gold mr-2 mt-1 flex-shrink-0" />
-                          <div>
-                            <h5 className="text-white font-medium mb-1">User hook</h5>
-                            <p className="text-white/80 text-sm">{v.hook}</p>
+                      {v.hook && (
+                        <div className="bg-white/5 p-4 rounded-lg mb-4 border-l-4 border-logo-cyan">
+                          <div className="flex items-start">
+                            <Sparkles className="h-4 w-4 text-gold mr-2 mt-1 flex-shrink-0" />
+                            <div>
+                              <p className="text-logo-cyan font-semibold text-sm mb-1">{v.hook}</p>
+                            </div>
                           </div>
                         </div>
-                      </div>
+                      )}
 
                       {v.offers.length > 0 && (
                         <div className="bg-white/5 p-4 rounded-lg mb-4">
@@ -144,8 +154,12 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                         </div>
                       )}
 
-                      <button onClick={() => openDirections(v)} className="w-full bg-logo-cyan text-white py-2 rounded-lg flex items-center justify-center mt-4">
-                        <Navigation className="h-4 w-4 mr-2" /> Get Directions
+                      <button
+                        onClick={() => openDirections(v)}
+                        className="w-full bg-logo-cyan text-white py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg font-semibold hover:bg-logo-cyan/90 active:scale-95 transition-all mt-6 focus:outline-none focus:ring-2 focus:ring-logo-cyan focus:ring-offset-2"
+                      >
+                        <Navigation className="h-5 w-5 mr-2" />
+                        Click here to get directions
                       </button>
                     </div>
                   </div>
@@ -162,10 +176,26 @@ export default function LocationModal({ open, onCloseAction }: Props) {
         ) : (
           // List view
           <>
-            <div className="aspect-video bg-black/40 rounded-lg mb-6 relative overflow-hidden">
-              <Image src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/location-TYbJu50iiu2MVCqm9H03oAIr51Hlod.png" alt="Refill Locations Map" fill className="object-contain p-8" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-black/60 backdrop-blur-sm px-4 py-2 rounded-lg text-white text-sm">{sortedVenues.length} Premium Refill Venues</div>
+            {/* Filter by type */}
+            <div className="flex justify-end mb-4">
+              <select
+                value={typeFilter}
+                onChange={e => setTypeFilter(e.target.value as VenueRole | "all")}
+                className="bg-black/60 border border-logo-cyan/50 text-white px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-logo-cyan"
+              >
+                <option value="all">All Types</option>
+                <option value="dayAnchor">Day Anchor</option>
+                <option value="eveningAnchor">Evening Anchor</option>
+                <option value="anchor24h">24h Anchor</option>
+                <option value="redundancy">Redundancy</option>
+              </select>
+            </div>
+            <div className="aspect-video rounded-lg mb-6 relative overflow-hidden">
+              <RefillMap venues={sortedVenues} />
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <div className="bg-black/60 px-4 py-2 rounded-lg text-white text-sm">
+                  {sortedVenues.length} Premium Refill Venues
+                </div>
               </div>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -187,7 +217,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
               ))}
             </div>
             <div className="flex justify-between">
-              <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors flex items-center" onClick={() => window.open("https://www.google.com/maps/@?api=1&map_action=map", "_blank")}> <ExternalLink className="h-4 w-4 mr-2" />Open Maps</button>
+              
               <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={onCloseAction}>Close</button>
             </div>
           </>

@@ -41,6 +41,8 @@ export default function HomePage() {
   const [modalOpen, setModalOpen] = useState(false);
   const [ticketOpen, setTicketOpen] = useState(false);
   const [explainModal, setExplainModal] = useState<null | string>(null);
+const [showInfo, setShowInfo] = useState(false);
+const [infoFeature, setInfoFeature] = useState<string|null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const { user, isLoading, logout, addRefill, subscribe } = useUser();
 
@@ -65,6 +67,8 @@ export default function HomePage() {
     // If user not logged in, show explanation modal for all gated features
     if (!user) {
       setExplainModal(feature);
+      setShowInfo(true);
+      setInfoFeature(feature);
       return;
     }
 
@@ -120,17 +124,14 @@ export default function HomePage() {
           <SubscribeButton onClick={() => handleAction('subscribe')} subscribed={user?.water_subscription_status === 'active'} />
           <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
         </div>
-        <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} />
+        <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} onInfoOpen={() => setShowInfo(true)} />
         {/* Feature Explanation Modal (for logged out users) */}
-        {explainModal && (
-          <FeatureExplainModal
-            open={!!explainModal}
-            feature={explainModal}
-            onClose={() => setExplainModal(null)}
-
-          />
-        )}
-
+        <FeatureExplainModal
+          open={showInfo}
+          onClose={() => { setShowInfo(false); setInfoFeature(null); }}
+          onInfoClose={() => { setShowInfo(false); setInfoFeature(null); }}
+          feature={infoFeature}
+        />
         {/* Login Modal (triggered only from within FeatureExplainModal) */}
         {loginOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">

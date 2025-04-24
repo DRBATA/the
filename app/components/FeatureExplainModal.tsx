@@ -1,4 +1,11 @@
-export default function FeatureExplainModal({ open, onClose, feature }: { open: boolean, onClose: () => void, feature: string | null }) {
+interface FeatureExplainModalProps {
+  open: boolean;
+  onClose: () => void;
+  feature: string | null;
+  onInfoClose?: () => void;
+}
+
+export default function FeatureExplainModal({ open, onClose, feature, onInfoClose }: FeatureExplainModalProps) {
   if (!open) return null;
 
   let title = "";
@@ -70,7 +77,7 @@ export default function FeatureExplainModal({ open, onClose, feature }: { open: 
               ? "text-lime-400 hover:text-lime-600"
               : "text-blue-400 hover:text-blue-600"
           }`}
-          onClick={onClose}
+          onClick={onInfoClose || onClose}
         >
           ×
         </button>

@@ -1,0 +1,65 @@
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import type { Venue } from "../lib/venues";
+
+// Fix for default marker icons in many build setups
+// @ts-ignore
+if (typeof window !== "undefined" && L.Icon.Default) {
+  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  L.Icon.Default.mergeOptions({
+    iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+    iconUrl: require("leaflet/dist/images/marker-icon.png"),
+    shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
+  });
+}
+
+interface Props {
+  venues: Venue[];
+  center?: [number, number];
+  zoom?: number;
+}
+
+export function RefillMap({
+  venues,
+  center = [25.20, 55.27],
+  zoom = 11,
+}: Props) {
+  return (
+    <MapContainer
+      center={center}
+      zoom={zoom}
+      style={{ width: "100%", height: "100%" }}
+      scrollWheelZoom={false}
+    >
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution="&copy; OpenStreetMap contributors"
+      />
+
+      {venues.map((v) => (
+        <Marker
+          key={v.id}
+          position={[v.coordinates.latitude, v.coordinates.longitude]}
+        >
+          <Popup>
+            <div className="text-sm">
+              <strong>{v.name}</strong>
+              <br />
+              {v.hook}
+              <br />
+              <a
+                href={v.mapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-logo-cyan underline text-xs"
+              >
+                Open in Maps
+              </a>
+            </div>
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
+  );
+}
