@@ -170,7 +170,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
 
                   <div className="flex justify-between">
                     <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(selected === 0 ? sortedVenues.length - 1 : selected - 1)}>Previous</button>
-                    <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={onCloseAction}>Close</button>
+                    <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(null)}>Close</button>
                     <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected((selected + 1) % sortedVenues.length)}>Next</button>
                   </div>
                 </div>
@@ -222,7 +222,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
             </div>
             <div className="flex justify-between">
               
-              <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={onCloseAction}>Close</button>
+              <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(null)}>Close</button>
             </div>
           </>
         )}

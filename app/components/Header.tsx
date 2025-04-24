@@ -22,7 +22,11 @@ export default function PremiumHeader() {
   return (
     <>
       <header className="fixed top-0 w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10">
-        <div className="flex justify-between items-center p-4">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center p-4 gap-2 md:gap-0">
+          <div>
+            <h1 className="text-2xl font-bold text-logo-cyan tracking-tight">The Water Bar</h1>
+            <div className="text-white text-sm md:text-base font-medium opacity-80">Discover. Refill. Repeat.<br className="hidden md:block"/>Your city-wide guide to sustainable hydration.</div>
+          </div>
           <div>
             {user ? (
               <div className="flex items-center gap-4 text-white">
