@@ -3,6 +3,7 @@ import "./globals.css";
 
 import { UserProvider } from "../contexts/user-context";
 import { ToastContainer } from "./components/ToastNotification";
+import RefillOfferToast from "../components/RefillFactToast";
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <UserProvider>
           {children}
           <ToastContainer />
+          <RefillOfferToast />
         </UserProvider>
       </body>
     </html>

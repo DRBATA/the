@@ -9,6 +9,8 @@ import LoginButton from "./components/LoginButton";
 import SignatureEventButton from "./components/SignatureEventButton";
 import MagicLinkLogin from "./components/MagicLinkLogin";
 import { useUser } from "../contexts/user-context";
+import { chooseVenueOffer } from "../utils/venueSelector";
+import { refillFacts } from "../lib/refillFacts";
 
 type Attendee = { name: string; email: string; id: string; confirmed: boolean };
 function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () => void, attendee: Attendee | null }) {
@@ -29,8 +31,25 @@ function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () =
 }
 
 import FeatureExplainModal from "./components/FeatureExplainModal";
+import LocationModal from "../components/LocationModal";
+
+const firstFiveFacts = [
+  "You just saved your first bottle—way to go!",
+  "Second refill—keep it up!",
+  "Three is a magic number for the planet!",
+  "Four bottles saved, four times the impact!",
+  "Five bottles—you're a refill hero!",
+];
+const sixToTenFacts = [
+  "Six refills—your habit is making waves!",
+  "Seven up! The ocean thanks you.",
+  "Eight bottles saved—plastic-free is the way!",
+  "Nine refills—almost at double digits!",
+  "Ten bottles! You're a sustainability star!",
+];
 
 export default function HomePage() {
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [ticketOpen, setTicketOpen] = useState(false);
   const [explainModal, setExplainModal] = useState<null | string>(null);
@@ -49,19 +68,25 @@ export default function HomePage() {
 
   // Unified action handler for all main actions
   const handleAction = async (feature: string) => {
+    // Find Refill is always available
+    if (feature === "findRefill") {
+      setLocationModalOpen(true);
+      return;
+    }
+
+    // If user not logged in, show explanation modal for all gated features
     if (!user) {
       setExplainModal(feature);
       return;
     }
-    // If logged in, handle real actions here (to be implemented per feature)
-    if (feature === "findRefill") {
-      // TODO: Open Find Refill modal/flow
-    } else if (feature === "getRefill") {
+
+    if (feature === "getRefill") {
       const ok = await addRefill();
       if (ok) {
         window.showToast?.("🎉 Refill added!", "success");
       } else {
         window.showToast?.("Subscribe for unlimited refills after 5", "info");
+        window.open("https://buy.stripe.com/00g29q1B89kPanmcOb", "_blank");
       }
     } else if (feature === "signatureEvent") {
       handleBuyTicket();
@@ -91,7 +116,12 @@ export default function HomePage() {
           ) : user ? (
             <div className="flex flex-col items-center w-full">
               <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.email}</span></div>
-              <div className="mb-2 text-sm text-emerald-100">Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span></div>
+              <div className="mb-2 text-sm text-emerald-100">
+                Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span> bottles
+                <span className="mx-2">|</span>
+                CO₂ saved: <span className="font-bold">{(user.water_bottle_saved * 82.8 / 1000).toFixed(2)} kg</span>
+                <a href="https://www.wwf.org.uk/updates/how-much-plastic-do-we-use" target="_blank" rel="noopener noreferrer" className="ml-1 underline text-xs text-gray-300 hover:text-emerald-200">(source)</a>
+              </div>
               <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
                 Log Out
               </button>
@@ -102,6 +132,7 @@ export default function HomePage() {
           <SubscribeButton onClick={() => handleAction('subscribe')} subscribed={user?.water_subscription_status === 'active'} />
           <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
         </div>
+        <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} />
         {/* Feature Explanation Modal (for logged out users) */}
         {explainModal && (
           <FeatureExplainModal

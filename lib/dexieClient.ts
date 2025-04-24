@@ -1,4 +1,4 @@
-import Dexie, { Table } from "dexie";
+import Dexie, { Table } from 'dexie';
 
 // Basic shape for storing meta key/value pairs
 export interface MetaRecord {

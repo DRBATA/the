@@ -3,6 +3,23 @@
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "../lib/supabaseClient";
 import { db } from "../lib/dexieClient";
+import { refillFacts } from "../lib/refillFacts";
+
+const firstFiveFacts = [
+  "You just saved your first bottle—way to go!",
+  "Second refill—keep it up!",
+  "Three is a magic number for the planet!",
+  "Four bottles saved, four times the impact!",
+  "Five bottles—you're a refill hero!",
+];
+const sixToTenFacts = [
+  "Six refills—your habit is making waves!",
+  "Seven up! The ocean thanks you.",
+  "Eight bottles saved—plastic-free is the way!",
+  "Nine refills—almost at double digits!",
+  "Ten bottles! You're a sustainability star!",
+];
+import { chooseVenueOffer } from "../utils/venueSelector";
 
 export interface UserProfile {
   id: string;
@@ -20,6 +37,7 @@ interface UserContextType {
   updateUser: (data: Partial<UserProfile>) => Promise<void>;
   claimFirstFreeRefill: () => Promise<boolean>;
   addRefill: () => Promise<boolean>;
+  canRefill: () => boolean;
   subscribe: () => Promise<void>;
 } 
 
@@ -177,7 +195,43 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Try to sync if online and logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
-      supabase.from("profiles").update({ water_bottle_saved: newCount }).eq("id", user.id);
+      await supabase.from("profiles").update({ water_bottle_saved: newCount }).eq("id", user.id);
+      // Fetch fresh profile from Supabase after update
+      let { data, error } = await supabase
+        .from("profiles")
+        .select("id, email, water_bottle_saved, water_subscription_status, membership_status")
+        .eq("id", user.id)
+        .single();
+      if (!error && data) {
+        setUser({
+          id: data.id,
+          email: data.email,
+          water_subscription_status: data.water_subscription_status,
+          membership_status: data.membership_status,
+          water_bottle_saved: data.water_bottle_saved || 0,
+        });
+        db.profiles.put({
+          id: data.id,
+          email: data.email,
+          water_bottle_saved: data.water_bottle_saved || 0,
+          water_subscription_status: data.water_subscription_status,
+          membership_status: data.membership_status,
+        });
+      }
+    }
+    try {
+      const { venue, offer } = chooseVenueOffer(new Date());
+      let fact = "";
+      if (newCount <= 5) {
+        fact = firstFiveFacts[(newCount - 1) % firstFiveFacts.length];
+      } else if (newCount <= 10) {
+        fact = sixToTenFacts[(newCount - 6) % sixToTenFacts.length];
+      } else {
+        fact = refillFacts[(newCount - 11) % refillFacts.length];
+      }
+      window.dispatchEvent(new CustomEvent("refill-toast", { detail: { fact, venue, offer } }));
+    } catch (e) {
+      console.error("Failed to dispatch refill toast", e);
     }
     return true;
   };
@@ -197,7 +251,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   return (
     <UserContext.Provider
-      value={{ user, isLoading, login, logout, updateUser, claimFirstFreeRefill, addRefill, subscribe }}
+      value={{ user, isLoading, login, logout, updateUser, claimFirstFreeRefill, addRefill, subscribe, canRefill }}
     >
       {children}
     </UserContext.Provider>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
-import { db } from "../lib/dexieClient";
+import { db, MetaRecord } from "../lib/dexieClient";
 import { supabase } from "../lib/supabaseClient";
 
 const CONFETTI_COLORS = ["#00C2A0", "#00796B", "#FFD600", "#3DDC97"]; // Brand colors
@@ -14,7 +14,7 @@ export default function LoginWithConfetti() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    db.meta.get("lastEmail").then((record) => {
+    db.meta.get("lastEmail").then((record: MetaRecord | undefined) => {
       if (record) setEmail(record.value);
     });
   }, []);
