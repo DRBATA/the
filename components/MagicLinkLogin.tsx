@@ -21,9 +21,7 @@ export default function MagicLinkLogin() {
 
   // Auto-login effect
   useEffect(() => {
-    let sent = false;
     if (email && !loading && !supabase.auth.getUser) { // If user is not authenticated (getUser is undefined or falsy)
-      sent = true;
       handleLogin(email);
       if (window && typeof window.showToast === "function") {
         window.showToast("We’ve sent a login link to your email. Please check your inbox!", "info");
@@ -31,8 +29,7 @@ export default function MagicLinkLogin() {
         setMessage("We’ve sent a login link to your email. Please check your inbox!");
       }
     }
-    return () => { sent = false; };
-  }, [email]);
+  }, [email, loading]);
 
   const handleLogin = async (loginEmail: string) => {
     setLoading(true);
