@@ -12,11 +12,27 @@ export default function MagicLinkLogin() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // Check for saved email and auto-login if not authenticated
   useEffect(() => {
     db.meta.get("lastEmail").then((record: MetaRecord | undefined) => {
       if (record) setEmail(record.value);
     });
   }, []);
+
+  // Auto-login effect
+  useEffect(() => {
+    let sent = false;
+    if (email && !loading && !supabase.auth.getUser) { // If user is not authenticated (getUser is undefined or falsy)
+      sent = true;
+      handleLogin(email);
+      if (window && typeof window.showToast === "function") {
+        window.showToast("We’ve sent a login link to your email. Please check your inbox!", "info");
+      } else {
+        setMessage("We’ve sent a login link to your email. Please check your inbox!");
+      }
+    }
+    return () => { sent = false; };
+  }, [email]);
 
   const handleLogin = async (loginEmail: string) => {
     setLoading(true);
@@ -59,6 +75,18 @@ export default function MagicLinkLogin() {
         }}
         style={{ display: "flex", flexDirection: "column", gap: 16, alignItems: "center" }}
       >
+        {email && (
+          <button
+            type="button"
+            onClick={() => {
+              setEmail("");
+              db.meta.delete("lastEmail");
+            }}
+            style={{ background: "transparent", color: "#00796B", border: "none", marginBottom: 8, cursor: "pointer", textDecoration: "underline" }}
+          >
+            Not you?
+          </button>
+        )}
         <input
           type="email"
           value={email}

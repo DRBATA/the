@@ -129,8 +129,12 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                         <div className="flex items-start mb-2">
                           <Info className="h-4 w-4 text-logo-cyan mr-2 mt-1 flex-shrink-0" />
                           <div>
-                            <h5 className="text-white font-medium mb-1">Why it&apos;s cool</h5>
-                            <p className="text-white/80 text-sm">{v.reasons}</p>
+                            <h5 className="text-white font-medium mb-1">Venue Highlights</h5>
+                            <ul className="list-disc pl-5 text-white/80 text-sm">
+                              {v.reasons.split(',').map((reason, idx) => (
+                                <li key={idx}>{reason.trim()}</li>
+                              ))}
+                            </ul>
                           </div>
                         </div>
                       </div>
@@ -188,10 +192,10 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                 className="bg-black/60 border border-logo-cyan/50 text-white px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-logo-cyan"
               >
                 <option value="all">All Types</option>
-                <option value="dayAnchor">Day Anchor</option>
-                <option value="eveningAnchor">Evening Anchor</option>
-                <option value="anchor24h">24h Anchor</option>
-                <option value="redundancy">Redundancy</option>
+                <option value="dayAnchor">Day Venue</option>
+                <option value="eveningAnchor">Evening Venue</option>
+                <option value="anchor24h">24h Venue</option>
+                <option value="redundancy">Redundancy Venue</option>
               </select>
             </div>
             <div className="aspect-video rounded-lg mb-6 relative overflow-hidden">
@@ -220,10 +224,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                 </div>
               ))}
             </div>
-            <div className="flex justify-between">
-              
-              <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(null)}>Close</button>
-            </div>
+            
           </>
         )}
       </div>

@@ -35,14 +35,21 @@ export function RefillMap({
       scrollWheelZoom={false}
     >
       <TileLayer
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        attribution="&copy; OpenStreetMap contributors"
+        url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
+        attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under ODbL.'
       />
 
       {venues.map((v) => (
         <Marker
           key={v.id}
           position={[v.coordinates.latitude, v.coordinates.longitude]}
+          icon={L.icon({
+            iconUrl: '/water-drop-pin.png',
+            iconSize: [32, 40], // adjust as needed
+            iconAnchor: [16, 40], // point of the icon which will correspond to marker's location
+            popupAnchor: [0, -36],
+            shadowUrl: undefined,
+          })}
         >
           <Popup>
             <div className="text-sm">
