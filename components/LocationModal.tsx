@@ -37,12 +37,12 @@ export default function LocationModal({ open, onCloseAction }: Props) {
   const openDirections = (venue: Venue) => {
     if (!position) {
       requestPermission();
-      (window as any).showToast?.("Please enable location services to get directions", "info");
+      (window as Window & typeof globalThis & { showToast?: (msg: string, type?: string) => void }).showToast?.("Please enable location services to get directions", "info");
       return;
     }
     const url = `https://www.google.com/maps/dir/?api=1&origin=${position.latitude},${position.longitude}&destination=${venue.coordinates.latitude},${venue.coordinates.longitude}&travelmode=driving`;
     window.open(url, "_blank");
-    (window as any).showToast?.("Opening directions in Google Maps...", "info");
+    (window as Window & typeof globalThis & { showToast?: (msg: string, type?: string) => void }).showToast?.("Opening directions in Google Maps...", "info");
   };
 
   if (!open) return null;
@@ -116,7 +116,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                         <div className="flex items-start mb-2">
                           <Info className="h-4 w-4 text-logo-cyan mr-2 mt-1 flex-shrink-0" />
                           <div>
-                            <h5 className="text-white font-medium mb-1">Why it's cool</h5>
+                            <h5 className="text-white font-medium mb-1">Why it&apos;s cool</h5>
                             <p className="text-white/80 text-sm">{v.reasons}</p>
                           </div>
                         </div>
