@@ -1,7 +1,6 @@
 "use client";
-import Image from "next/image";
 import { useCallback, useMemo, useState } from "react";
-import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles, ExternalLink } from "lucide-react";
+import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles } from "lucide-react";
 
 import { venues, Venue } from "../lib/venues";
 import { RefillMap } from "./RefillMap";
@@ -125,7 +124,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                         <div className="flex items-start mb-2">
                           <Info className="h-4 w-4 text-logo-cyan mr-2 mt-1 flex-shrink-0" />
                           <div>
-                            <h5 className="text-white font-medium mb-1">Why it's cool</h5>
+                            <h5 className="text-white font-medium mb-1">Why it&apos;s cool</h5>
                             <p className="text-white/80 text-sm">{v.reasons}</p>
                           </div>
                         </div>

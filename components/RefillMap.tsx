@@ -4,12 +4,14 @@ import "leaflet/dist/leaflet.css";
 import type { Venue } from "../lib/venues";
 
 // Fix for default marker icons in many build setups
-// @ts-ignore
 if (typeof window !== "undefined" && L.Icon.Default) {
-  delete (L.Icon.Default.prototype as any)._getIconUrl;
+  delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })._getIconUrl;
   L.Icon.Default.mergeOptions({
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     iconUrl: require("leaflet/dist/images/marker-icon.png"),
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
     shadowUrl: require("leaflet/dist/images/marker-shadow.png"),
   });
 }

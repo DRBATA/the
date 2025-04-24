@@ -40,9 +40,8 @@ export default function HomePage() {
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [ticketOpen, setTicketOpen] = useState(false);
-  const [explainModal, setExplainModal] = useState<null | string>(null);
-const [showInfo, setShowInfo] = useState(false);
-const [infoFeature, setInfoFeature] = useState<string|null>(null);
+  const [showInfo, setShowInfo] = useState(false);
+  const [infoFeature, setInfoFeature] = useState<string|null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
   const { user, isLoading, logout, addRefill, subscribe } = useUser();
 
@@ -66,7 +65,6 @@ const [infoFeature, setInfoFeature] = useState<string|null>(null);
 
     // If user not logged in, show explanation modal for all gated features
     if (!user) {
-      setExplainModal(feature);
       setShowInfo(true);
       setInfoFeature(feature);
       return;
@@ -125,7 +123,7 @@ const [infoFeature, setInfoFeature] = useState<string|null>(null);
           <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
         </div>
         <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} onInfoOpen={() => setShowInfo(true)} />
-        {/* Feature Explanation Modal (for logged out users) */}
+        {/* Feature Explanation Modal (for users) */}
         <FeatureExplainModal
           open={showInfo}
           onClose={() => { setShowInfo(false); setInfoFeature(null); }}
