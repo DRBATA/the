@@ -32,6 +32,28 @@ export interface Venue {
 
 export const venues: Venue[] = [
   {
+    id: "soulgreen-dubai-creek-veda",
+    name: "SoulGreen – Dubai Creek Veda",
+    address: "Veda Mall, Sheikh Rashid Rd, Dubai Creek, Dubai, UAE",
+    mapsUrl: "https://www.google.com/maps/search/?api=1&query=SoulGreen+Dubai+Creek+Veda",
+    microArea: "DIFC",
+    role: "dayAnchor",
+    openTime: "08:00",
+    closeTime: "20:00",
+    reasons: "Healthy bowls & salads, sustainable packaging, prime demo site footfall",
+    hook: "Enjoy 20% off any Buddha Bowl after your refill!",
+    coordinates: { latitude: 25.1946, longitude: 55.3273 },
+    offers: [
+      {
+        id: "buddha-bowl-20",
+        title: "20% Off Any Buddha Bowl",
+        description: "Show this voucher after refilling your bottle to redeem.",
+        code: "SOULGREENDEMO",
+        validUntil: "2025-12-31",
+      },
+    ],
+  }, 
+  {
     id: "risen-cafe-marina",
     name: "Risen Café & Artisanal Bakery – Dubai Marina",
     address: "Marina Promenade, Dubai Marina, Dubai, UAE",
