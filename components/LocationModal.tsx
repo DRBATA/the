@@ -3,9 +3,14 @@ import { useCallback, useMemo, useState } from "react";
 import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles } from "lucide-react";
 
 import { venues, Venue } from "../lib/venues";
-import { RefillMap } from "./RefillMap";
+import dynamic from "next/dynamic";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { calculateDistance, formatDistance } from "../utils/distance";
+
+// React Leaflet depends on the browser DOM (window). Dynamically import it with SSR disabled.
+const RefillMap = dynamic(() => import("./RefillMap").then((m) => m.RefillMap), {
+  ssr: false,
+});
 
 interface Props {
   open: boolean;
