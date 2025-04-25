@@ -227,7 +227,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       } else {
         fact = refillFacts[(newCount - 11) % refillFacts.length];
       }
-      window.dispatchEvent(new CustomEvent("refill-toast", { detail: { fact, venue, offer } }));
+      window.dispatchEvent(new CustomEvent("refill-toast", { detail: { fact } }));
     } catch (e) {
       console.error("Failed to dispatch refill toast", e);
     }

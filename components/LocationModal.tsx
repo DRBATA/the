@@ -1,5 +1,5 @@
 "use client";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useState, useEffect } from "react";
 import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles } from "lucide-react";
 
 import { venues, Venue } from "../lib/venues";
@@ -24,6 +24,28 @@ export default function LocationModal({ open, onCloseAction }: Props) {
   const [typeFilter, setTypeFilter] = useState<VenueRole | "all">("all");
   const { position, requestPermission, permissionDenied } = useGeolocation();
   const [selected, setSelected] = useState<number | null>(null);
+  const [pingedVenues, setPingedVenues] = useState<string[]>([]);
+
+  // Proximity sensor: notify when within 1km of a venue (once per venue per session)
+  useEffect(() => {
+    if (!position) return;
+    venues.forEach((venue) => {
+      if (pingedVenues.includes(venue.id)) return;
+      const dist = calculateDistance(
+        position.latitude,
+        position.longitude,
+        venue.coordinates.latitude,
+        venue.coordinates.longitude
+      );
+      if (dist <= 1) {
+        window.showToast?.(
+          `You're near ${venue.name}! ${venue.offers[0]?.title ? 'Offer: ' + venue.offers[0].title : ''}`,
+          'info'
+        );
+        setPingedVenues((prev) => [...prev, venue.id]);
+      }
+    });
+  }, [position, pingedVenues]);
 
   const filteredVenues = useMemo(() => {
     return typeFilter === "all" ? venues : venues.filter(v => v.role === typeFilter);
