@@ -35,21 +35,14 @@ export function RefillMap({
       scrollWheelZoom={false}
     >
       <TileLayer
-        url="https://stamen-tiles.a.ssl.fastly.net/watercolor/{z}/{x}/{y}.jpg"
-        attribution='Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under ODbL.'
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
       />
 
       {venues.map((v) => (
         <Marker
           key={v.id}
           position={[v.coordinates.latitude, v.coordinates.longitude]}
-          icon={L.icon({
-            iconUrl: '/favicon.png',
-            iconSize: [32, 32], // favicon size
-            iconAnchor: [16, 32], // center bottom
-            popupAnchor: [0, -28],
-            shadowUrl: undefined,
-          })}
         >
           <Popup>
             <div className="text-sm">

@@ -78,12 +78,12 @@ export default function HomePage() {
         window.showToast?.("🎉 Refill added!", "success");
       } else {
         window.showToast?.("Subscribe for unlimited refills after 5", "info");
-        window.open("YOUR_WATER_BAR_SUBSCRIPTION_LINK_HERE", "_blank"); // TODO: replace with actual Water Bar subscription Stripe link
+        window.showToast?.("Water Bar subscription coming soon!", "info");
       }
     } else if (feature === "signatureEvent") {
       window.open("https://buy.stripe.com/00g29q1B89kPanmcOb", "_blank");
     } else if (feature === "subscribe") {
-      window.open("YOUR_WATER_BAR_SUBSCRIPTION_LINK_HERE", "_blank"); // TODO: replace with actual Water Bar subscription Stripe link
+      window.showToast?.("Water Bar subscription coming soon!", "info");
     }
   };
 
