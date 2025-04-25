@@ -19,7 +19,6 @@ interface Props {
   onInfoOpen?: () => void;
 }
 
-import { VenueRole } from "../lib/venues";
 
 export default function LocationModal({ open, onCloseAction }: Props) {
   const [typeFilter, setTypeFilter] = useState<'dayAnchor' | 'eveningAnchor' | 'anchor24h' | 'all'>("all");
