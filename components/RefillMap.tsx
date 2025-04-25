@@ -44,10 +44,10 @@ export function RefillMap({
           key={v.id}
           position={[v.coordinates.latitude, v.coordinates.longitude]}
           icon={L.icon({
-            iconUrl: '/water-drop-pin.png',
-            iconSize: [32, 40], // adjust as needed
-            iconAnchor: [16, 40], // point of the icon which will correspond to marker's location
-            popupAnchor: [0, -36],
+            iconUrl: '/favicon.png',
+            iconSize: [32, 32], // favicon size
+            iconAnchor: [16, 32], // center bottom
+            popupAnchor: [0, -28],
             shadowUrl: undefined,
           })}
         >
