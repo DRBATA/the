@@ -45,12 +45,12 @@ export default function HomePage() {
   const [showInfo, setShowInfo] = useState(false);
   const [infoFeature, setInfoFeature] = useState<string|null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
-  const { user, isLoading, logout, addRefill, subscribe } = useUser();
+  const { user, isLoading, logout, addRefill } = useUser();
 
   // Placeholder for attendee logic (to be re-integrated if needed)
   const attendee = null;
 
-  const handleBuyTicket = () => setModalOpen(true);
+  
 
   const handleModalSuccess = () => {
     setModalOpen(false);

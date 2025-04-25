@@ -60,8 +60,7 @@ export default function BackgroundVideoLooper() {
   }, [current, next, crossfade, isMuted]);
 
   // Set initial opacity/volume
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+    useEffect(() => {
     videoRefs.forEach((ref, idx) => {
       if (ref.current) {
         ref.current.style.opacity = idx === current ? "1" : "0";
@@ -71,8 +70,7 @@ export default function BackgroundVideoLooper() {
   }, [current]);
 
   // Mute/unmute logic
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => {
+    useEffect(() => {
     videoRefs.forEach((ref) => {
       if (ref.current) ref.current.muted = isMuted;
     });
