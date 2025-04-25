@@ -48,7 +48,12 @@ export default function LocationModal({ open, onCloseAction }: Props) {
   }, [position, pingedVenues]);
 
   const filteredVenues = useMemo(() => {
-    return typeFilter === "all" ? venues : venues.filter(v => v.role === typeFilter);
+    return typeFilter === "all" ? venues : venues.filter(v => {
+      const role = v.role === 'redundancy'
+        ? (parseInt(v.openTime) < 15 ? 'dayAnchor' : 'eveningAnchor')
+        : v.role;
+      return role === typeFilter;
+    });
   }, [typeFilter]);
 
   const sortedVenues = useMemo(() => {
@@ -135,9 +140,22 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                 <div className="space-y-6">
                   <div className="bg-white/5 rounded-lg overflow-hidden">
                     <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xl font-medium text-white">{v.name}</h4>
                         <div className="bg-logo-cyan/20 text-logo-cyan px-3 py-1 rounded-full text-xs">{selected + 1} of {sortedVenues.length}</div>
+                      </div>
+                      <div className="mb-4">
+                        <span className="inline-block bg-white/10 text-white/80 px-3 py-1 rounded-full text-xs font-semibold">
+                          {v.role === 'redundancy'
+                            ? (parseInt(v.openTime) < 15 ? 'Day Menu' : 'Evening Menu')
+                            : v.role === 'dayAnchor'
+                              ? 'Day Menu'
+                              : v.role === 'eveningAnchor'
+                                ? 'Evening Menu'
+                                : v.role === 'anchor24h'
+                                  ? '24h Anchor'
+                                  : ''}
+                        </span>
                       </div>
 
                       <div className="flex justify-between items-center text-white/70 mb-4">

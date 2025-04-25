@@ -43,6 +43,13 @@ export function RefillMap({
         <Marker
           key={v.id}
           position={[v.coordinates.latitude, v.coordinates.longitude]}
+          icon={L.icon({
+            iconUrl: '/favicon-32x32.png',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32], // bottom center
+            popupAnchor: [0, -32],
+            shadowUrl: undefined,
+          })}
         >
           <Popup>
             <div className="text-sm">
