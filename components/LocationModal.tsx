@@ -288,9 +288,9 @@ export default function LocationModal({ open, onCloseAction }: Props) {
             
           </>
         )}
+        {/* Agentic Button (bottom right) */}
+        <AgenticButton onClick={() => alert('Agentic workflow coming soon!')} />
       </div>
-      {/* Agentic Button (bottom right) */}
-      <AgenticButton onClick={() => alert('Agentic workflow coming soon!')} />
-    </>
+    </div>
   );
 }

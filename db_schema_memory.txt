@@ -1,0 +1,36 @@
+# Supabase Database Schema Memory (as of 2025-04-25)
+
+## Table: auth.users
+- id (uuid)
+- email (character varying)
+- ... (default Supabase Auth fields)
+
+## Table: public.profiles
+- id (uuid)                  -- references auth.users.id
+- username (text)
+- water_subscription_status (text)
+- membership_status (text)
+- water_bottle_saved (integer)
+- medical_exemption (boolean)
+- confirmed_address (text)
+- whatsapp_number (text)
+- created_at (timestamp with time zone)
+- email (text)
+
+## Table: public.attendees
+- id (uuid)
+- name (text)
+- email (text)
+- status (text)
+- created_at (timestamp with time zone)
+- updated_at (timestamp with time zone)
+- event_id (uuid)            -- added for multi-event support
+- user_id (uuid)             -- added for user linkage
+
+## Notes
+- `profiles` is your custom user profile table (linked to auth.users).
+- `attendees` now supports multiple events per user and can be linked to user accounts.
+- You may want to add foreign key constraints for `user_id` (to profiles.id) and `event_id` (to an events table, if you create one).
+- Stripe webhooks will update `profiles.water_subscription_status` for subscriptions, and insert into `attendees` for event bookings.
+
+# End of schema memory
