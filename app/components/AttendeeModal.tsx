@@ -33,7 +33,7 @@ export default function AttendeeModal({ open, onClose, onSuccess }: { open: bool
           placeholder="Your Name"
           value={name}
           onChange={e => setName(e.target.value)}
-          className="border p-2 rounded"
+          className="border-[color:var(--primary-blue)] p-2 rounded"
           required
         />
         <input
@@ -41,18 +41,22 @@ export default function AttendeeModal({ open, onClose, onSuccess }: { open: bool
           placeholder="Your Email"
           value={email}
           onChange={e => setEmail(e.target.value)}
-          className="border p-2 rounded"
+          className="border-[color:var(--primary-blue)] p-2 rounded"
           required
         />
         {error && <div className="text-red-600 text-sm">{error}</div>}
         <button
           type="submit"
-          className="bg-emerald-500 text-white py-2 rounded font-semibold hover:bg-emerald-600 transition"
+          className="btn"
+          style={{
+            backgroundImage: `var(--button-gradient)`,
+            color: 'white'
+          }}
           disabled={loading}
         >
           {loading ? "Saving..." : "Continue to Payment"}
         </button>
-        <button type="button" onClick={onClose} className="text-gray-500 hover:underline text-sm mt-2">Cancel</button>
+        <button type="button" onClick={onClose} className="text-[color:var(--primary-blue)] hover:underline text-sm mt-2">Cancel</button>
       </form>
     </div>
   );

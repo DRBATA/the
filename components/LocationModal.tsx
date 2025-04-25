@@ -3,6 +3,7 @@ import { useCallback, useMemo, useState, useEffect } from "react";
 import { X, ChevronLeft, Navigation, AlertCircle, Compass, Info, Sparkles } from "lucide-react";
 
 import { venues, Venue } from "../lib/venues";
+import AgenticButton from "./AgenticButton";
 import dynamic from "next/dynamic";
 import { useGeolocation } from "../hooks/useGeolocation";
 import { calculateDistance, formatDistance } from "../utils/distance";
@@ -21,7 +22,15 @@ interface Props {
 import { VenueRole } from "../lib/venues";
 
 export default function LocationModal({ open, onCloseAction }: Props) {
-  const [typeFilter, setTypeFilter] = useState<VenueRole | "all">("all");
+  const [typeFilter, setTypeFilter] = useState<'dayAnchor' | 'eveningAnchor' | 'anchor24h' | 'all'>("all");
+
+  // Options for dropdown (no redundancy)
+  const typeOptions = [
+    { value: 'all', label: 'All Types' },
+    { value: 'dayAnchor', label: 'Day Venue' },
+    { value: 'eveningAnchor', label: 'Evening Venue' },
+    { value: 'anchor24h', label: '24h Venue' },
+  ];
   const { position, requestPermission, permissionDenied } = useGeolocation();
   const [selected, setSelected] = useState<number | null>(null);
   const [pingedVenues, setPingedVenues] = useState<string[]>([]);
@@ -89,7 +98,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
 
   return (
     <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-black/80 border border-white/10 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-auto">
+      <div className="bg-black/80 border border-white/10 rounded-lg p-6 w-full max-w-4xl max-h-[90vh] overflow-auto relative">
         <div className="flex justify-between items-center mb-6">
           <h3 className="text-xl font-medium text-white">Premium Refill Locations</h3>
           <button className="text-white/70 hover:text-white" onClick={onCloseAction}>
@@ -99,16 +108,16 @@ export default function LocationModal({ open, onCloseAction }: Props) {
 
         {/* Location permission banner */}
         {!position && (
-          <div className="bg-logo-cyan/20 border border-logo-cyan/30 rounded-lg p-4 mb-6">
+          <div className="bg-[color:var(--primary-blue)]/20 border border-[color:var(--primary-blue)]/30 rounded-lg p-4 mb-6">
             <div className="flex items-start">
-              <Compass className="h-5 w-5 text-logo-cyan mr-2 flex-shrink-0 mt-0.5" />
+              <Compass className="h-5 w-5 text-[color:var(--primary-blue)] mr-2 flex-shrink-0 mt-0.5" />
               <div>
                 <h4 className="text-white font-medium mb-1">Enable Location Services</h4>
                 <p className="text-white/80 text-sm">Allow location access to see how far you are from each refill station and get directions.</p>
                 {permissionDenied ? (
                   <p className="text-amber-400 text-sm mt-2">Location access was denied. Please enable location services in your browser settings.</p>
                 ) : (
-                  <button onClick={requestPermission} className="mt-2 bg-logo-cyan text-white text-sm px-3 py-1 rounded-md hover:bg-logo-cyan/90 transition-colors">
+                  <button onClick={requestPermission} className="mt-2 bg-[color:var(--primary-blue)] text-white text-sm px-3 py-1 rounded-md hover:bg-[color:var(--primary-blue)]/90 transition-colors">
                     Enable Location
                   </button>
                 )}
@@ -117,10 +126,22 @@ export default function LocationModal({ open, onCloseAction }: Props) {
           </div>
         )}
 
+        {/* Venue Type Filter Dropdown */}
+        <div className="mb-6 flex justify-end">
+          <select
+            className="bg-black/80 border border-white/20 text-white rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-blue)]"
+            value={typeFilter}
+            onChange={e => setTypeFilter(e.target.value as 'dayAnchor' | 'eveningAnchor' | 'anchor24h' | 'all')}
+          >
+            {typeOptions.map(opt => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+        </div>
         {/* Important notice */}
-        <div className="bg-emerald/20 border border-emerald/30 rounded-lg p-4 mb-6">
+        <div className="bg-[rgba(0,159,255,0.08)] border border-[rgba(0,159,255,0.20)] rounded-lg p-4 mb-6">
           <div className="flex items-start">
-            <AlertCircle className="h-5 w-5 text-emerald mr-2 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 text-[color:var(--primary-blue)] mr-2 flex-shrink-0 mt-0.5" />
             <div>
               <h4 className="text-white font-medium mb-1">Important Refill Information</h4>
               <p className="text-white/80 text-sm">Please bring your own water bottle to refill stations. Our partners cannot provide glassware — this helps us reduce single-use plastic waste together!</p>
@@ -131,7 +152,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
         {selected !== null ? (
           // Detail view
           <>
-            <button className="flex items-center text-logo-cyan hover:text-logo-cyan/80 transition-colors mb-4" onClick={() => setSelected(null)}>
+            <button className="flex items-center text-[color:var(--primary-blue)] hover:text-[color:var(--primary-blue)]/80 transition-colors mb-4" onClick={() => setSelected(null)}>
               <ChevronLeft className="h-4 w-4 mr-1" /> Back to all locations
             </button>
             {(() => {
@@ -142,7 +163,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                     <div className="p-6">
                       <div className="flex items-center justify-between mb-2">
                         <h4 className="text-xl font-medium text-white">{v.name}</h4>
-                        <div className="bg-logo-cyan/20 text-logo-cyan px-3 py-1 rounded-full text-xs">{selected + 1} of {sortedVenues.length}</div>
+                        <div className="bg-[color:var(--primary-blue)]/20 text-[color:var(--primary-blue)] px-3 py-1 rounded-full text-xs">{selected + 1} of {sortedVenues.length}</div>
                       </div>
                       <div className="mb-4">
                         <span className="inline-block bg-white/10 text-white/80 px-3 py-1 rounded-full text-xs font-semibold">
@@ -161,13 +182,13 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                       <div className="flex justify-between items-center text-white/70 mb-4">
                         <div>{v.address}</div>
                         {position && (
-                          <div className="flex items-center text-emerald font-medium"><Navigation className="h-4 w-4 mr-1" />{getDistance(v)} away</div>
+                          <div className="flex items-center text-[color:var(--primary-blue)] font-medium"><Navigation className="h-4 w-4 mr-1" />{getDistance(v)} away</div>
                         )}
                       </div>
 
                       <div className="bg-white/5 p-4 rounded-lg mb-4">
                         <div className="flex items-start mb-2">
-                          <Info className="h-4 w-4 text-logo-cyan mr-2 mt-1 flex-shrink-0" />
+                          <Info className="h-4 w-4 text-[color:var(--primary-blue)] mr-2 mt-1 flex-shrink-0" />
                           <div>
                             <h5 className="text-white font-medium mb-1">Venue Highlights</h5>
                             <ul className="list-disc pl-5 text-white/80 text-sm">
@@ -180,11 +201,11 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                       </div>
 
                       {v.hook && (
-                        <div className="bg-white/5 p-4 rounded-lg mb-4 border-l-4 border-logo-cyan">
+                        <div className="bg-white/5 p-4 rounded-lg mb-4 border-l-4 border-[color:var(--primary-blue)]">
                           <div className="flex items-start">
                             <Sparkles className="h-4 w-4 text-gold mr-2 mt-1 flex-shrink-0" />
                             <div>
-                              <p className="text-logo-cyan font-semibold text-sm mb-1">{v.hook}</p>
+                              <p className="text-[color:var(--primary-blue)] font-semibold text-sm mb-1">{v.hook}</p>
                             </div>
                           </div>
                         </div>
@@ -196,7 +217,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                           {v.offers.map((o) => (
                             <div key={o.id} className="mb-2 text-white/80 text-sm">
                               <p className="font-medium text-white">{o.title}</p>
-                              <p>{o.description}{o.code && (<span className="ml-1 text-logo-cyan font-semibold">({o.code})</span>)}</p>
+                              <p>{o.description}{o.code && (<span className="ml-1 text-[color:var(--primary-blue)] font-semibold">({o.code})</span>)}</p>
                             </div>
                           ))}
                         </div>
@@ -204,7 +225,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
 
                       <button
                         onClick={() => openDirections(v)}
-                        className="w-full bg-logo-cyan text-white py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg font-semibold hover:bg-logo-cyan/90 active:scale-95 transition-all mt-6 focus:outline-none focus:ring-2 focus:ring-logo-cyan focus:ring-offset-2"
+                        className="w-full bg-[color:var(--primary-blue)] text-white py-3 rounded-xl shadow-lg flex items-center justify-center gap-2 text-lg font-semibold hover:bg-[color:var(--primary-blue)]/90 active:scale-95 transition-all mt-6 focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-blue)] focus:ring-offset-2"
                       >
                         <Navigation className="h-5 w-5 mr-2" />
                         Click here to get directions
@@ -214,7 +235,7 @@ export default function LocationModal({ open, onCloseAction }: Props) {
 
                   <div className="flex justify-between">
                     <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(selected === 0 ? sortedVenues.length - 1 : selected - 1)}>Previous</button>
-                    <button className="bg-logo-cyan text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(null)}>Close</button>
+                    <button className="bg-[color:var(--primary-blue)] text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected(null)}>Close</button>
                     <button className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg transition-colors" onClick={() => setSelected((selected + 1) % sortedVenues.length)}>Next</button>
                   </div>
                 </div>
@@ -228,8 +249,8 @@ export default function LocationModal({ open, onCloseAction }: Props) {
             <div className="flex justify-end mb-4">
               <select
                 value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value as VenueRole | "all")}
-                className="bg-black/60 border border-logo-cyan/50 text-white px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-logo-cyan"
+                onChange={e => setTypeFilter(e.target.value as "dayAnchor" | "eveningAnchor" | "anchor24h" | "all")}
+                className="bg-black/60 border border-[color:var(--primary-blue)]/50 text-white px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-blue)]"
               >
                 <option value="all">All Types</option>
                 <option value="dayAnchor">Day Venue</option>
@@ -251,15 +272,15 @@ export default function LocationModal({ open, onCloseAction }: Props) {
                 <div key={v.id} className="bg-white/5 hover:bg-white/10 transition-colors rounded-lg p-4 cursor-pointer" onClick={() => setSelected(i)}>
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-white">{v.name}</h4>
-                    <div className="bg-logo-cyan/20 text-logo-cyan px-2 py-0.5 rounded-full text-xs">{i + 1}</div>
+                    <div className="bg-[color:var(--primary-blue)]/20 text-[color:var(--primary-blue)] px-2 py-0.5 rounded-full text-xs">{i + 1}</div>
                   </div>
                   <div className="flex justify-between items-center mb-2">
                     <p className="text-sm text-white/70">{v.address}</p>
-                    {position && <span className="text-xs text-emerald font-medium flex items-center"><Navigation className="h-3 w-3 mr-1" /> {getDistance(v)}</span>}
+                    {position && <span className="text-xs text-[color:var(--primary-blue)] font-medium flex items-center"><Navigation className="h-3 w-3 mr-1" /> {getDistance(v)}</span>}
                   </div>
                   <div className="flex items-center justify-between text-xs">
                     <div className="flex items-center text-white/50"><Info className="h-3 w-3 mr-1" /><span>Tap for details</span></div>
-                    <button onClick={(e) => { e.stopPropagation(); openDirections(v); }} className="text-logo-cyan hover:text-logo-cyan/80 transition-colors flex items-center"><Navigation className="h-3 w-3 mr-1" /> Directions</button>
+                    <button onClick={(e) => { e.stopPropagation(); openDirections(v); }} className="text-[color:var(--primary-blue)] hover:text-[color:var(--primary-blue)]/80 transition-colors flex items-center"><Navigation className="h-3 w-3 mr-1" /> Directions</button>
                   </div>
                 </div>
               ))}
@@ -268,6 +289,8 @@ export default function LocationModal({ open, onCloseAction }: Props) {
           </>
         )}
       </div>
-    </div>
+      {/* Agentic Button (bottom right) */}
+      <AgenticButton onClick={() => alert('Agentic workflow coming soon!')} />
+    </>
   );
 }

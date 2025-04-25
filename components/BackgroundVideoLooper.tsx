@@ -77,7 +77,7 @@ export default function BackgroundVideoLooper() {
   }, [isMuted]);
 
   return (
-    <div className="fixed inset-0 z-0 w-full h-full pointer-events-none select-none">
+    <div className="overlay fixed inset-0 z-0 w-full h-full pointer-events-none select-none">
       {VIDEO_SOURCES.map((src, idx) => (
         <video
           key={src}
@@ -92,9 +92,10 @@ export default function BackgroundVideoLooper() {
         />
       ))}
       <button
-        className="absolute bottom-6 right-6 z-10 bg-black/60 text-white px-4 py-2 rounded-lg backdrop-blur hover:bg-black/80 pointer-events-auto"
+        className="btn absolute bottom-6 right-6 z-10 bg--primary-blue-dark text-white px-4 py-2 rounded-lg backdrop-blur hover:bg--primary-blue pointer-events-auto"
         onClick={() => setIsMuted((m) => !m)}
         aria-label={isMuted ? "Unmute background video" : "Mute background video"}
+        style={{ background: "var(--button-gradient)" }}
       >
         {isMuted ? "Unmute" : "Mute"} Background
       </button>

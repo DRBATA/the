@@ -89,7 +89,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
     >
       {/* Logo overlay */}
       <div className="absolute top-16 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center">
-        <Image src="/logo.png" alt="Logo" width={240} height={120} className="object-contain drop-shadow-lg" priority />
+        <Image src="/logo.png" alt="Logo" width={240} height={120} className="overlay" priority />
       </div>
       <Image
         src={slides[current].src}
@@ -110,7 +110,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
     slides[current].headline
   )}
 </h1>
-        <h2 className="text-lg sm:text-2xl md:text-3xl font-playfair italic text-white/90 mb-2 animate-fadein">
+        <h2 className="text-lg sm:text-2xl md:text-3xl font-playfair italic text-[color:var(--primary-blue)] mb-2 animate-fadein">
   {slides[current].subheadline}
 </h2>
         {slides[current].tagline && (
@@ -121,7 +121,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
         {slides[current].button && (
           <a
             href={slides[current].button.link}
-            className="inline-block bg-emerald-500 hover:bg-emerald-400 text-white font-semibold rounded-full px-8 py-3 shadow-lg text-lg animate-fadein"
+            className="btn"
           >
             {slides[current].button.text}
           </a>
@@ -130,7 +130,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
       {/* Carousel controls - chevrons, center vertically */}
       <div className="absolute inset-y-0 left-0 right-0 flex items-center justify-between px-4 pointer-events-none z-30">
         <button
-          className="bg-black/60 text-white rounded-full p-4 pointer-events-auto text-3xl shadow-lg hover:bg-black/80 focus:outline-none transition-all duration-200"
+          className="btn"
           onClick={prevSlide}
           aria-label="Previous slide"
           style={{ minWidth: 56, minHeight: 56 }}
@@ -138,7 +138,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
           <FiChevronLeft />
         </button>
         <button
-          className="bg-black/60 text-white rounded-full p-4 pointer-events-auto text-3xl shadow-lg hover:bg-black/80 focus:outline-none transition-all duration-200"
+          className="btn"
           onClick={nextSlide}
           aria-label="Next slide"
           style={{ minWidth: 56, minHeight: 56 }}
@@ -153,7 +153,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
           return (
             <button
               key={iconObj.key}
-              className="w-12 h-12 flex items-center justify-center rounded-full bg-emerald-600 hover:bg-emerald-700 shadow-lg transition-all border-4 border-white focus:outline-none"
+              className="btn"
               onClick={() => setSheet(iconObj)}
               aria-label={iconObj.label}
               style={{ color: 'white', fontSize: 28 }}
@@ -168,7 +168,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
         {slides.map((_, idx) => (
           <span
             key={idx}
-            className={`block w-2 h-2 rounded-full ${idx === current ? "bg-yellow-400" : "bg-white/50"}`}
+            className={`block w-2 h-2 rounded-full ${idx === current ? "bg-[color:var(--primary-blue)]" : "bg-white/50"}`}
           />
         ))}
       </div>
@@ -184,16 +184,16 @@ const [sheet, setSheet] = useState<SheetType>(null);
               boxShadow: "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
             }}
           >
-            <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-emerald-600 text-white text-3xl shadow-lg">
+            <div className="mb-3 flex items-center justify-center w-14 h-14 rounded-full bg-[color:var(--primary-blue)] text-white text-3xl shadow-lg">
               {sheet.icon ? <sheet.icon /> : <span>?</span>}
             </div>
             <h3 className="text-xl font-bold mb-2 text-white drop-shadow">{sheet.label || 'No title'}</h3>
             <div className="text-base text-white/90 mb-4 min-h-[40px] drop-shadow">
-              {sheet.content || <span className="italic text-emerald-100">No info available.</span>}
+              {sheet.content || <span className="italic text-[color:var(--primary-blue)]">No info available.</span>}
             </div>
-            <hr className="w-10 border-emerald-200 my-2 opacity-60" />
-            <div className="text-emerald-100 text-sm font-semibold mt-2 min-h-[20px]">
-              {sheet.footer || <span className="italic text-emerald-100">No footer.</span>}
+            <hr className="w-10 border-[color:var(--primary-blue)] my-2 opacity-60" />
+            <div className="text-[color:var(--primary-blue)] text-sm font-semibold mt-2 min-h-[20px]">
+              {sheet.footer || <span className="italic text-[color:var(--primary-blue)]">No footer.</span>}
             </div>
           </div>
         ) : (

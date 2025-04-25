@@ -103,7 +103,7 @@ export default function MagicLinkLogin() {
       {email && !loading && (
         <button
           onClick={() => handleLogin(email)}
-          style={{ marginTop: 16, background: "#3DDC97", color: "#fff", border: "none", borderRadius: 8, padding: "8px 18px", fontWeight: 600, cursor: "pointer" }}
+          className="btn" style={{marginTop:16}}
         >
           Log in as {email}
         </button>

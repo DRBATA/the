@@ -24,10 +24,10 @@ const RefillOfferToast: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center pointer-events-none">
-      <div className="bg-white text-black rounded-xl shadow-xl px-6 py-4 text-base font-semibold pointer-events-auto border-2 border-logo-cyan max-w-sm w-full">
-        <div className="mb-2 flex items-center"><span role="img" aria-label="burst" className="mr-2">💧</span>{payload.fact}</div>
+      <div className="bg-white text-black rounded-xl shadow-xl px-6 py-4 text-base font-semibold pointer-events-auto overlay border-2 border-[color:var(--primary-blue)] max-w-sm w-full">
+        <div className="mb-2 flex items-center"><span role="img" aria-label="burst" className="mr-2 text-[color:var(--primary-blue)]">💧</span>{payload.fact}</div>
         {payload.offer && (
-          <div className="text-sm text-logo-cyan font-medium">Try <span className="font-bold">{payload.venue.name}</span>: {payload.offer.title}</div>
+          <div className="text-sm text-[color:var(--primary-blue-dark)] font-medium">Try <span className="font-bold text-[color:var(--primary-blue)]">{payload.venue.name}</span>: {payload.offer.title}</div>
         )}
       </div>
     </div>

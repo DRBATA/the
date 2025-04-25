@@ -33,70 +33,40 @@ export default function FeatureExplainModal({ open, onClose, feature, onInfoClos
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+    <div className="overlay" style={{ inset: "0", zIndex: "50", display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "var(--black-60)" }}>
       <div
-        className={`relative w-full max-w-xs p-8 rounded-2xl shadow-2xl border-4 ${
-          feature === "findRefill"
-            ? "border-teal-400"
-            : feature === "getRefill"
-            ? "border-emerald-400"
-            : feature === "subscribe"
-            ? "border-yellow-300"
-            : feature === "signatureEvent"
-            ? "border-lime-400"
-            : "border-blue-400"
-        } bg-white/90`}
+        className={`relative w-full max-w-xs p-8 rounded-2xl shadow-2xl border-4 border-blue-400 bg-white/90`}
         style={{ overflow: "hidden", backdropFilter: "blur(12px)", WebkitBackdropFilter: "blur(12px)" }}
       >
         {/* Subtle white overlay for text contrast */}
-        <div className="absolute inset-0 bg-white/80 z-0" />
+        <div className="overlay" style={{ inset: "0", backgroundColor: "var(--white-80)", zIndex: "0" }} />
         {/* Neon Mosaic SVG pattern for ALL modals */}
         <svg
-          className="absolute inset-0 w-full h-full opacity-20 pointer-events-none z-0"
+          className="overlay" style={{ inset: "0", width: "100%", height: "100%", opacity: "0.2", pointerEvents: "none", zIndex: "0" }}
           viewBox="0 0 320 320"
           fill="none"
         >
           <defs>
             <pattern id="mosaic-feature" width="40" height="40" patternUnits="userSpaceOnUse">
               <rect x="0" y="0" width="40" height="40" fill="white" fillOpacity="0.0" />
-              <polygon points="20,0 40,20 20,40 0,20" fill={feature === "findRefill" ? "#2dd4bf" : feature === "getRefill" ? "#34d399" : feature === "subscribe" ? "#facc15" : feature === "signatureEvent" ? "#bef264" : "#38bdf8"} fillOpacity="0.5" />
+              <polygon points="20,0 40,20 20,40 0,20" fill="var(--primary-blue)" fillOpacity="0.5" />
               <circle cx="20" cy="20" r="8" fill="#fff" fillOpacity="0.12" />
             </pattern>
           </defs>
           <rect width="320" height="320" fill="url(#mosaic-feature)" />
         </svg>
         <button
-          className={`absolute top-4 right-6 text-2xl font-bold transition-colors z-10 ${
-            feature === "findRefill"
-              ? "text-teal-400 hover:text-teal-600"
-              : feature === "getRefill"
-              ? "text-emerald-400 hover:text-emerald-600"
-              : feature === "subscribe"
-              ? "text-yellow-300 hover:text-yellow-500"
-              : feature === "signatureEvent"
-              ? "text-lime-400 hover:text-lime-600"
-              : "text-blue-400 hover:text-blue-600"
-          }`}
+          className="btn" style={{ position: "absolute", top: "1.5rem", right: "1.5rem", fontSize: "1.5rem", fontWeight: "bold", color: "var(--primary-blue)", cursor: "pointer" }}
           onClick={onInfoClose || onClose}
         >
           ×
         </button>
         <h2
-          className={`text-2xl font-bold mb-4 text-center drop-shadow-lg z-10 ${
-            feature === "findRefill"
-              ? "text-teal-500"
-              : feature === "getRefill"
-              ? "text-emerald-500"
-              : feature === "subscribe"
-              ? "text-yellow-500"
-              : feature === "signatureEvent"
-              ? "text-lime-500"
-              : "text-blue-500"
-          }`}
+          className="text-2xl font-bold mb-4 text-center drop-shadow-lg" style={{ color: "var(--primary-blue-dark)" }}
         >
           {title}
         </h2>
-        <p className="mb-8 text-gray-800 text-center text-base z-10 drop-shadow-sm">{description}</p>
+        <p className="text-gray-800 text-center text-base drop-shadow-sm">{description}</p>
 
       </div>
     </div>

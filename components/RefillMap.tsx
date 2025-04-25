@@ -44,15 +44,15 @@ export function RefillMap({
           key={v.id}
           position={[v.coordinates.latitude, v.coordinates.longitude]}
           icon={L.icon({
-            iconUrl: '/favicon-32x32.png',
-            iconSize: [32, 32],
-            iconAnchor: [16, 32], // bottom center
-            popupAnchor: [0, -32],
+            iconUrl: '/logoright.png',
+            iconSize: [48, 48],
+            iconAnchor: [24, 48], // bottom center
+            popupAnchor: [0, -48],
             shadowUrl: undefined,
           })}
         >
           <Popup>
-            <div className="text-sm">
+            <div className="btn">
               <strong>{v.name}</strong>
               <br />
               {v.hook}
@@ -61,7 +61,12 @@ export function RefillMap({
                 href={v.mapsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-logo-cyan underline text-xs"
+                className="btn text-xs"
+                style={{
+                  textDecoration: "underline",
+                  color: "var(--primary-blue)",
+                  backgroundImage: "var(--button-gradient)",
+                }}
               >
                 Open in Maps
               </a>

@@ -114,6 +114,7 @@ export default function HomePage() {
                 CO₂ saved: <span className="font-bold">{(user.water_bottle_saved * 82.8 / 1000).toFixed(2)} kg</span>
                 <a href="https://www.wwf.org.uk/updates/how-much-plastic-do-we-use" target="_blank" rel="noopener noreferrer" className="ml-1 underline text-xs text-gray-300 hover:text-emerald-200">(source)</a>
               </div>
+              
               <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
                 Log Out
               </button>
