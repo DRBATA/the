@@ -244,20 +244,6 @@ export default function LocationModal({ open, onCloseAction }: Props) {
         ) : (
           // List view
           <>
-            {/* Filter by type */}
-            <div className="flex justify-end mb-4">
-              <select
-                value={typeFilter}
-                onChange={e => setTypeFilter(e.target.value as "dayAnchor" | "eveningAnchor" | "anchor24h" | "all")}
-                className="bg-black/60 border border-[color:var(--primary-blue)]/50 text-white px-3 py-1 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[color:var(--primary-blue)]"
-              >
-                <option value="all">All Types</option>
-                <option value="dayAnchor">Day Venue</option>
-                <option value="eveningAnchor">Evening Venue</option>
-                <option value="anchor24h">24h Venue</option>
-                <option value="redundancy">Redundancy Venue</option>
-              </select>
-            </div>
             <div className="aspect-video rounded-lg mb-6 relative overflow-hidden">
               <RefillMap venues={sortedVenues} />
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

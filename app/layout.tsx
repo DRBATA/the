@@ -4,6 +4,7 @@ import "./globals.css";
 import { UserProvider } from "../contexts/user-context";
 import { ToastContainer } from "./components/ToastNotification";
 import RefillOfferToast from "../components/RefillFactToast";
+import AgenticButton from "../components/AgenticButton";
 
 export const metadata: Metadata = {
   title: "The Water Bar – Discover. Refill. Repeat.",
@@ -21,6 +22,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           {children}
           <ToastContainer />
           <RefillOfferToast />
+          <AgenticButton onClick={() => alert('Agentic chatbot coming soon!')} />
         </UserProvider>
       </body>
     </html>
