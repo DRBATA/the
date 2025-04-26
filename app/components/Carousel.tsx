@@ -1,7 +1,7 @@
 "use client";
 import Image from "next/image";
 import { useState } from "react";
-import BottomSheet from "./BottomSheet";
+
 import { slideIcons } from "../slideIcons";
 import { IconType } from "react-icons";
 import { FiChevronLeft, FiChevronRight } from "react-icons/fi";
@@ -173,7 +173,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
         ))}
       </div>
       {/* Emerald glassmorphism info BottomSheet */}
-      <BottomSheet open={!!sheet} onClose={() => setSheet(null)}>
+      {/* BottomSheet removed for new UI. Previously: <BottomSheet open={!!sheet} onClose={() => setSheet(null)}> */}
         {sheet ? (
           <div className="px-6 py-6 flex flex-col items-center text-center rounded-2xl shadow-2xl"
             style={{
@@ -199,7 +199,7 @@ const [sheet, setSheet] = useState<SheetType>(null);
         ) : (
           <div className="p-6 text-center text-gray-400">No info to display.</div>
         )}
-      </BottomSheet>
+      {/* End BottomSheet removed */}
 
     </div>
   );
