@@ -136,7 +136,6 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
     message = (e as { message: string }).message;
   }
   setError(message);
-                  setError(e.message || 'Unknown error');
                 } finally {
                   setLoading(false);
                 }
@@ -177,7 +176,6 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
     message = (e as { message: string }).message;
   }
   setError(message);
-                  setError(e.message || 'Unknown error');
                 } finally {
                   setLoading(false);
                 }
