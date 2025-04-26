@@ -2,7 +2,7 @@ import type { NextApiRequest, NextApiResponse } from "next";
 import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2023-10-16",
+  apiVersion: "2025-03-31.basil",
 });
 
 // Expects: { customerId: string }
@@ -36,7 +36,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         cancel_at: subscription.cancel_at,
         cancel_at_period_end: subscription.cancel_at_period_end,
         canceled_at: subscription.canceled_at,
+        // @ts-expect-error Stripe types may lag behind API
         current_period_end: subscription.current_period_end,
+        // @ts-expect-error Stripe types may lag behind API
         current_period_start: subscription.current_period_start,
         plan: {
           nickname: price?.nickname,
@@ -54,7 +56,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           : null,
       },
     });
-  } catch (e: any) {
-    res.status(500).json({ error: e.message });
+  } catch (e: unknown) {
+    let message = 'Unknown error';
+    if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
+      message = (e as any).message;
+    }
+    res.status(500).json({ error: message });
   }
 }
