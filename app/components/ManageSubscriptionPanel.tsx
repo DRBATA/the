@@ -136,9 +136,7 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
             </button>
           </>
         )}
-        <div className="mt-4 text-sm text-gray-600">
-          Need help? <a href="mailto:support@yourdomain.com" className="underline">Contact support</a>
-        </div>
+        
       </div>
     </div>
   );
