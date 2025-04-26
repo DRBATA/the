@@ -58,7 +58,7 @@ async function mainHandler(req: NextApiRequest, res: NextApiResponse) {
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {
     await mainHandler(req, res);
-  } catch (err) {
+  } catch {
     if (!res.headersSent) {
       res.status(500).json({ error: 'Unexpected server error' });
     }
