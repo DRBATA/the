@@ -13,6 +13,13 @@ async function mainHandler(req: NextApiRequest, res: NextApiResponse) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
   const { priceId, successUrl, cancelUrl, supabaseUserId, email } = req.body;
+  console.log('[create-stripe-checkout-session] Received fields:', {
+    priceId,
+    successUrl,
+    cancelUrl,
+    supabaseUserId,
+    email,
+  });
   if (!priceId || !successUrl || !cancelUrl || !supabaseUserId || !email) {
     return res.status(400).json({ error: 'Missing required fields' });
   }
