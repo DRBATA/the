@@ -26,12 +26,39 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object as Stripe.Checkout.Session;
       const email = session.customer_details?.email;
+      const customerId = session.customer as string;
       if (email) {
-        // Update attendee status to 'confirmed'
+        // 1. Update attendee status to 'confirmed'
         await supabase
           .from('attendees')
           .update({ status: 'confirmed', updated_at: new Date().toISOString() })
           .eq('email', email);
+        // 2. Store Stripe customer ID in profiles table
+        if (customerId) {
+          await supabase
+            .from('profiles')
+            .update({ stripe_customer_id: customerId })
+            .eq('email', email);
+        }
+      }
+    }
+
+    // Handle subscription events
+    if (
+      event.type === 'customer.subscription.created' ||
+      event.type === 'customer.subscription.updated' ||
+      event.type === 'customer.subscription.deleted'
+    ) {
+      const subscription = event.data.object as Stripe.Subscription;
+      const customerId = subscription.customer as string;
+      const status = subscription.status; // 'active', 'canceled', 'past_due', etc.
+
+      // Update the user's subscription status in Supabase
+      if (customerId && status) {
+        await supabase
+          .from('profiles')
+          .update({ water_subscription_status: status })
+          .eq('stripe_customer_id', customerId);
       }
     }
 

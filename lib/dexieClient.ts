@@ -10,9 +10,15 @@ export interface MetaRecord {
 export interface CachedProfile {
   id: string;
   email: string;
+  username?: string | null;
+  water_subscription_status?: string | null;
+  membership_status?: string | null;
   water_bottle_saved: number;
-  water_subscription_status?: string;
-  membership_status?: string;
+  medical_exemption?: boolean | null;
+  confirmed_address?: string | null;
+  whatsapp_number?: string | null;
+  created_at?: string | null; // ISO timestamp
+  stripe_customer_id?: string | null;
 }
 
 class WaterBarDB extends Dexie {

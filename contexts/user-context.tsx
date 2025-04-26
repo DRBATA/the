@@ -24,9 +24,15 @@ import { chooseVenueOffer } from "../utils/venueSelector";
 export interface UserProfile {
   id: string;
   email: string;
+  username?: string;
   water_subscription_status?: string;
   membership_status?: string;
   water_bottle_saved: number;
+  medical_exemption?: boolean;
+  confirmed_address?: string;
+  whatsapp_number?: string;
+  created_at?: string;
+  stripe_customer_id?: string;
 } 
 
 interface UserContextType {
@@ -57,7 +63,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Fetch profile from 'profiles' table
         let { data, error } = await supabase
           .from("profiles")
-          .select("id, email, water_bottle_saved, water_subscription_status, membership_status")
+          .select("id, email, water_bottle_saved, water_subscription_status, membership_status, stripe_customer_id")
           .eq("id", session.user.id)
           .single();
         if (error?.code === 'PGRST116' || error?.code === '42703' || error?.message?.includes('does not exist')) {
@@ -108,9 +114,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
           setUser({
             id: cached.id,
             email: cached.email,
+            username: cached.username == null ? undefined : cached.username,
             water_bottle_saved: cached.water_bottle_saved,
-            water_subscription_status: cached.water_subscription_status,
-            membership_status: cached.membership_status,
+            water_subscription_status: cached.water_subscription_status == null ? undefined : cached.water_subscription_status,
+            membership_status: cached.membership_status == null ? undefined : cached.membership_status,
+            medical_exemption: cached.medical_exemption == null ? undefined : cached.medical_exemption,
+            confirmed_address: cached.confirmed_address == null ? undefined : cached.confirmed_address,
+            whatsapp_number: cached.whatsapp_number == null ? undefined : cached.whatsapp_number,
+            created_at: cached.created_at == null ? undefined : cached.created_at,
+            stripe_customer_id: cached.stripe_customer_id == null ? undefined : cached.stripe_customer_id,
           });
         } else {
           setUser(null);

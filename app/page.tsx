@@ -5,6 +5,7 @@ import AttendeeModal from "./components/AttendeeModal";
 import FindRefillButton from "./components/FindRefillButton";
 import GetRefillButton from "./components/GetRefillButton";
 import SubscribeButton from "./components/SubscribeButton";
+import ManageSubscriptionPanel from "./components/ManageSubscriptionPanel";
 import LoginButton from "./components/LoginButton";
 import SignatureEventButton from "./components/SignatureEventButton";
 import MagicLinkLogin from "./components/MagicLinkLogin";
@@ -39,6 +40,7 @@ import LocationModal from "../components/LocationModal";
 import BackgroundVideoLooper from "../components/BackgroundVideoLooper";
 
 export default function HomePage() {
+  const [panelOpen, setPanelOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const [ticketOpen, setTicketOpen] = useState(false);
@@ -122,7 +124,16 @@ export default function HomePage() {
           ) : (
             <LoginButton onClick={() => setLoginOpen(true)} />
           )}
-          <SubscribeButton onClick={() => handleAction('subscribe')} subscribed={user?.water_subscription_status === 'active'} />
+          <SubscribeButton
+            onClick={() => setPanelOpen(true)}
+            subscribed={user?.water_subscription_status === 'active'}
+          />
+          <ManageSubscriptionPanel
+            status={user?.water_subscription_status}
+            open={panelOpen}
+            onClose={() => setPanelOpen(false)}
+            stripeCustomerId={user?.stripe_customer_id}
+          />
           <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
         </div>
         <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} onInfoOpen={() => setShowInfo(true)} />
