@@ -46,6 +46,11 @@ async function mainHandler(req: NextApiRequest, res: NextApiResponse) {
     if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
       message = (e as { message: string }).message;
     }
+    console.error(`[${new Date().toISOString()}] Error in create-stripe-checkout-session:`, {
+      message,
+      error: e,
+      requestBody: req.body,
+    });
     res.status(500).json({ error: message });
   }
 }

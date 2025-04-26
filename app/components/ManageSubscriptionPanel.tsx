@@ -135,7 +135,8 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
   if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
     message = (e as { message: string }).message;
   }
-  setError(message);
+  console.error('Subscription error:', e);
+setError(message);
                 } finally {
                   setLoading(false);
                 }
@@ -175,7 +176,8 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
   if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
     message = (e as { message: string }).message;
   }
-  setError(message);
+  console.error('Subscription error:', e);
+setError(message);
                 } finally {
                   setLoading(false);
                 }
@@ -215,14 +217,16 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
           if (data.url) {
             window.location.href = data.url;
           } else {
-            setError(data.error || 'Failed to start subscription.');
+            console.error('Backend error:', data.error, data);
+setError(data.error || 'Failed to start subscription.');
           }
         } catch (e: unknown) {
           let message = 'Unknown error';
           if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
             message = (e as { message: string }).message;
           }
-          setError(message);
+          console.error('Subscription error:', e);
+setError(message);
         } finally {
           setLoading(false);
         }
