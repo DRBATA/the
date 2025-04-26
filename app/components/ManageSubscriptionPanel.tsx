@@ -1,6 +1,7 @@
 import React from "react";
 
 import { useEffect, useState } from "react";
+import { useUser } from "../../contexts/user-context";
 
 interface ManageSubscriptionPanelProps {
   status: string | null | undefined;
@@ -42,6 +43,7 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<SubscriptionDetails | null>(null);
+  const { user } = useUser();
 
   useEffect(() => {
     if (!open || !stripeCustomerId) return;
@@ -108,9 +110,34 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
             <div className="mb-2 text-green-700">Your subscription is active. Enjoy unlimited refills!</div>
             <button
               className="w-full py-2 px-4 rounded bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
-              onClick={() => window.open("https://billing.stripe.com/p/login/test_billing_portal", "_blank")}
+              disabled={loading}
+              onClick={async () => {
+                if (!user || !user.id) {
+                  setError('You must be logged in to manage billing.');
+                  return;
+                }
+                setLoading(true);
+                setError(null);
+                try {
+                  const res = await fetch('/api/create-stripe-billing-portal-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ supabaseUserId: user.id })
+                  });
+                  const data = await res.json();
+                  if (data.url) {
+                    window.location.href = data.url;
+                  } else {
+                    setError(data.error || 'Failed to open billing portal.');
+                  }
+                } catch (e: any) {
+                  setError(e.message || 'Unknown error');
+                } finally {
+                  setLoading(false);
+                }
+              }}
             >
-              Manage Billing
+              {loading ? 'Redirecting…' : 'Manage Billing'}
             </button>
           </>
         )}
@@ -119,23 +146,80 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
             <div className="mb-2 text-yellow-700">Payment is past due. Please update your payment method.</div>
             <button
               className="w-full py-2 px-4 rounded bg-yellow-500 text-white font-semibold hover:bg-yellow-600 transition"
-              onClick={() => window.open("https://billing.stripe.com/p/login/test_billing_portal", "_blank")}
+              disabled={loading}
+              onClick={async () => {
+                if (!user || !user.id) {
+                  setError('You must be logged in to fix payment.');
+                  return;
+                }
+                setLoading(true);
+                setError(null);
+                try {
+                  const res = await fetch('/api/create-stripe-billing-portal-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ supabaseUserId: user.id })
+                  });
+                  const data = await res.json();
+                  if (data.url) {
+                    window.location.href = data.url;
+                  } else {
+                    setError(data.error || 'Failed to open billing portal.');
+                  }
+                } catch (e: any) {
+                  setError(e.message || 'Unknown error');
+                } finally {
+                  setLoading(false);
+                }
+              }}
             >
-              Fix Payment
+              {loading ? 'Redirecting…' : 'Fix Payment'}
             </button>
           </>
         )}
         {(!status || status === "canceled") && (
-          <>
-            <div className="mb-2 text-gray-700">You are not currently subscribed.</div>
-            <button
-              className="w-full py-2 px-4 rounded bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
-              onClick={() => window.open("https://buy.stripe.com/00g29q1B89kPanmcOb", "_blank")}
-            >
-              Subscribe Now
-            </button>
-          </>
-        )}
+  <>
+    <div className="mb-2 text-gray-700">You are not currently subscribed.</div>
+    <button
+      className="w-full py-2 px-4 rounded bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition"
+      disabled={loading}
+      onClick={async () => {
+        if (!user || !user.id || !user.email) {
+          setError('You must be logged in to subscribe.');
+          return;
+        }
+        setLoading(true);
+        setError(null);
+        try {
+          const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || '';
+          const res = await fetch('/api/create-stripe-checkout-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              priceId,
+              successUrl: window.location.origin + '/?sub=success',
+              cancelUrl: window.location.origin + '/?sub=cancel',
+              supabaseUserId: user.id,
+              email: user.email,
+            })
+          });
+          const data = await res.json();
+          if (data.url) {
+            window.location.href = data.url;
+          } else {
+            setError(data.error || 'Failed to start subscription.');
+          }
+        } catch (e: any) {
+          setError(e.message || 'Unknown error');
+        } finally {
+          setLoading(false);
+        }
+      }}
+    >
+      {loading ? 'Redirecting…' : 'Subscribe Now'}
+    </button>
+  </>
+)}
         
       </div>
     </div>

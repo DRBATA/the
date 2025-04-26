@@ -192,8 +192,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Check if user can perform a refill
   const canRefill = () => {
-    return !!user;
+    if (!user) return false;
+    if (user.water_subscription_status === "active") return true; // Unlimited for subscribers
+    return (user.water_bottle_saved ?? 0) < 5; // Limit to 5 for free users
   };
+
 
   // Add a refill if allowed, update Supabase & Dexie
   const addRefill = async (): Promise<boolean> => {

@@ -27,14 +27,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const session = event.data.object as Stripe.Checkout.Session;
       const email = session.customer_details?.email;
       const customerId = session.customer as string;
+      const supabaseUserId = session.metadata?.supabase_user_id;
+      // 1. Update attendee status to 'confirmed' if email present
       if (email) {
-        // 1. Update attendee status to 'confirmed'
         await supabase
           .from('attendees')
           .update({ status: 'confirmed', updated_at: new Date().toISOString() })
           .eq('email', email);
-        // 2. Store Stripe customer ID in profiles table
-        if (customerId) {
+      }
+      // 2. Store Stripe customer ID in profiles table
+      if (customerId) {
+        if (supabaseUserId) {
+          // Prefer user ID from metadata if present
+          await supabase
+            .from('profiles')
+            .update({ stripe_customer_id: customerId })
+            .eq('id', supabaseUserId);
+        } else if (email) {
+          // Fallback to email if user ID not present
           await supabase
             .from('profiles')
             .update({ stripe_customer_id: customerId })
