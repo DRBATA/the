@@ -37,7 +37,7 @@ import LocationModal from "../components/LocationModal";
 
 // firstFiveFacts / sixToTenFacts removed – no longer needed after gating change
 
-import BackgroundVideoLooper from "../components/BackgroundVideoLooper";
+
 
 export default function HomePage() {
   const [panelOpen, setPanelOpen] = useState(false);
@@ -91,7 +91,7 @@ export default function HomePage() {
 
   return (
     <section className="relative w-full h-[100vh] flex items-center justify-center">
-      <BackgroundVideoLooper />
+      
       <Image
         src="/backgroundtwb.png"
         alt="The Water Bar Background"

@@ -58,8 +58,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
   } catch (e: unknown) {
     let message = 'Unknown error';
-    if (e && typeof e === 'object' && 'message' in e && typeof (e as any).message === 'string') {
-      message = (e as any).message;
+    if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+      message = (e as { message: string }).message;
     }
     res.status(500).json({ error: message });
   }
