@@ -130,7 +130,12 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
                   } else {
                     setError(data.error || 'Failed to open billing portal.');
                   }
-                } catch (e: any) {
+                } catch (e: unknown) {
+  let message = 'Unknown error';
+  if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+    message = (e as { message: string }).message;
+  }
+  setError(message);
                   setError(e.message || 'Unknown error');
                 } finally {
                   setLoading(false);
@@ -166,7 +171,12 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
                   } else {
                     setError(data.error || 'Failed to open billing portal.');
                   }
-                } catch (e: any) {
+                } catch (e: unknown) {
+  let message = 'Unknown error';
+  if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+    message = (e as { message: string }).message;
+  }
+  setError(message);
                   setError(e.message || 'Unknown error');
                 } finally {
                   setLoading(false);
@@ -209,7 +219,12 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
           } else {
             setError(data.error || 'Failed to start subscription.');
           }
-        } catch (e: any) {
+        } catch (e: unknown) {
+  let message = 'Unknown error';
+  if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
+    message = (e as { message: string }).message;
+  }
+  setError(message);
           setError(e.message || 'Unknown error');
         } finally {
           setLoading(false);
