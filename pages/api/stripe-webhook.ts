@@ -35,7 +35,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const customerId = customer.id;
       const email = customer.email;
       // Prefer metadata-based lookup for reliability
-      const supabaseUserIdFromMetadata = (customer.metadata as { [key: string]: any })?.supabase_user_id as string | undefined;
+      const supabaseUserIdFromMetadata = (customer.metadata as { [key: string]: string })?.supabase_user_id as string | undefined;
 
       console.log(`[Stripe webhook] ${event.type}: email`, email, 'metadata.supabase_user_id', supabaseUserIdFromMetadata, 'customerId', customerId);
       if (supabaseUserIdFromMetadata) {
@@ -87,7 +87,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const subscription = await stripe.subscriptions.retrieve(subscriptionId);
           const customerId = subscription.customer as string;
           // Map all statuses except 'active' and 'trialing' to 'inactive' for business logic
-          let status: 'active' | 'inactive' = (subscription.status === 'active' || subscription.status === 'trialing') ? 'active' : 'inactive';
+          const status: 'active' | 'inactive' = (subscription.status === 'active' || subscription.status === 'trialing') ? 'active' : 'inactive';
           if (customerId && status) {
             const { error } = await supabaseAdmin
               .from('profiles')
@@ -112,7 +112,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const subscription = event.data.object as Stripe.Subscription;
       const customerId = subscription.customer as string;
       // Map all statuses except 'active' and 'trialing' to 'inactive' for business logic
-      let status: 'active' | 'inactive' = (subscription.status === 'active' || subscription.status === 'trialing') ? 'active' : 'inactive';
+      const status: 'active' | 'inactive' = (subscription.status === 'active' || subscription.status === 'trialing') ? 'active' : 'inactive';
 
       // Update the user's subscription status in Supabase
       if (customerId && status) {
