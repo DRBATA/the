@@ -41,14 +41,12 @@ const statusMap: Record<string, { color: string; text: string }> = {
 
 export default function ManageSubscriptionPanel({ status, open, onClose, stripeCustomerId }: ManageSubscriptionPanelProps) {
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [details, setDetails] = useState<SubscriptionDetails | null>(null);
   const { user } = useUser();
 
   useEffect(() => {
     if (!open || !stripeCustomerId) return;
     setLoading(true);
-    setError(null);
     setDetails(null);
     fetch("/api/subscription-details", {
       method: "POST",
@@ -109,7 +107,6 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
               disabled={loading}
               onClick={async () => {
                 if (!user || !user.id) {
-                  setError('You must be logged in to manage billing.');
                   return;
                 }
                 setLoading(true);
@@ -150,7 +147,6 @@ setError(message);
               disabled={loading}
               onClick={async () => {
                 if (!user || !user.id) {
-                  setError('You must be logged in to fix payment.');
                   return;
                 }
                 setLoading(true);
@@ -191,11 +187,9 @@ setError(message);
       disabled={loading}
       onClick={async () => {
         if (!user || !user.id || !user.email) {
-          setError('You must be logged in to subscribe.');
           return;
         }
         setLoading(true);
-        setError(null);
         try {
           const priceId = process.env.NEXT_PUBLIC_STRIPE_PRICE_ID || '';
           const res = await fetch('/api/create-stripe-checkout-session', {
@@ -214,13 +208,9 @@ setError(message);
             window.location.href = data.url;
           } else {
             console.error('Backend error:', data.error, data);
-setError(data.error || 'Failed to start subscription.');
           }
         } catch (e: unknown) {
-          let message = 'Unknown error';
-          if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
-            message = (e as { message: string }).message;
-          }
+          // Optionally handle unknown error
           console.error('Subscription error:', e);
 setError(message);
         } finally {
