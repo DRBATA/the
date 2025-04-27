@@ -55,10 +55,9 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
     })
       .then(res => res.json())
       .then(data => {
-        if (data.error) setError(data.error);
-        else setDetails(data.subscription);
+        if (!data.error) setDetails(data.subscription);
       })
-      .catch(e => setError(e.message))
+      .catch(e => console.error('Subscription details fetch error:', e))
       .finally(() => setLoading(false));
   }, [open, stripeCustomerId]);
   if (!open) return null;
