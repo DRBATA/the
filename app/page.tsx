@@ -39,7 +39,10 @@ import LocationModal from "../components/LocationModal";
 
 
 
+import SplashScreen from "./components/SplashScreen";
+
 export default function HomePage() {
+  const [showSplash, setShowSplash] = useState(true);
   const [panelOpen, setPanelOpen] = useState(false);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
@@ -52,6 +55,27 @@ export default function HomePage() {
   // Placeholder for attendee logic (to be re-integrated if needed)
   const attendee = null;
 
+  // SplashScreen hydration stats (can be replaced with real data)
+  const hydrationPercentage = 60;
+  const carbonSaved = 0.91;
+  const bottlesSaved = 11;
+  const [bubblePos, setBubblePos] = useState<{x: number, y: number}>({x: 0, y: 0});
+  const [bubblesPosition, setBubblesPosition] = useState<'center' | 'corner' | 'hidden'>('center');
+  const [isTransitioning, setIsTransitioning] = useState(false);
+
+  if (showSplash) {
+    return (
+      <SplashScreen
+        onCompleteAction={() => setShowSplash(false)}
+        hydrationPercentage={hydrationPercentage}
+        carbonSaved={carbonSaved}
+        bottlesSaved={bottlesSaved}
+        bubblesPosition={bubblesPosition}
+        onBubblePositionUpdateAction={setBubblePos}
+        isTransitioning={isTransitioning}
+      />
+    );
+  }
   
 
   const handleModalSuccess = () => {
