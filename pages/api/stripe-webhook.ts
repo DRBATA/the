@@ -23,6 +23,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       return res.status(400).send(`Webhook Error: ${(err as Error).message}`);
     }
 
+    // Handle checkout.session.completed for immediate feedback
+    if (event.type === 'checkout.session.completed') {
+      const session = event.data.object as Stripe.Checkout.Session;
+      const subscriptionId = session.subscription as string | undefined;
+      if (subscriptionId) {
+        try {
+          const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+          const customerId = subscription.customer as string;
+          const status = subscription.status;
+          if (customerId && status) {
+            await supabase
+              .from('profiles')
+              .update({ water_subscription_status: status })
+              .eq('stripe_customer_id', customerId);
+          }
+        } catch (err) {
+          console.error('Error fetching subscription after checkout.session.completed:', err);
+        }
+      }
+    }
+
     // Handle only subscription events (created / updated / deleted)
     if (
       event.type === 'customer.subscription.created' ||
