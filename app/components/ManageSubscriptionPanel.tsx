@@ -76,8 +76,6 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
         </div>
         {loading ? (
           <div className="text-gray-500 my-4">Loading subscription details…</div>
-        ) : error ? (
-          <div className="text-red-600 my-4">{error}</div>
         ) : details ? (
           <div className="mb-4 text-gray-800">
             <div className="mb-2">
@@ -102,9 +100,7 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
               </div>
             ) : null}
           </div>
-        ) : (
-          <div className="text-gray-500 my-4">No subscription found.</div>
-        )}
+        ) : null}
         {status === "active" && (
           <>
             <div className="mb-2 text-green-700">Your subscription is active. Enjoy unlimited refills!</div>
