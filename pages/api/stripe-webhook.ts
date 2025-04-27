@@ -5,10 +5,11 @@ import { createClient } from '@supabase/supabase-js';
 
 export const config = { api: { bodyParser: false } };
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2024-11-20.acacia' as unknown as '2025-03-31.basil' });
-const supabase = createClient(
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, { apiVersion: '2025-03-31.basil' });
+
+const supabaseAdmin = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
 );
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -33,10 +34,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
           const customerId = subscription.customer as string;
           const status = subscription.status;
           if (customerId && status) {
-            await supabase
+            const { error } = await supabaseAdmin
               .from('profiles')
               .update({ water_subscription_status: status })
               .eq('stripe_customer_id', customerId);
+            if (error) {
+              console.error('Supabase update error (checkout.session.completed):', error);
+            }
           }
         } catch (err) {
           console.error('Error fetching subscription after checkout.session.completed:', err);
@@ -56,10 +60,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       // Update the user's subscription status in Supabase
       if (customerId && status) {
-        await supabase
+        const { error } = await supabaseAdmin
           .from('profiles')
           .update({ water_subscription_status: status })
           .eq('stripe_customer_id', customerId);
+        if (error) {
+          console.error('Supabase update error (subscription event):', error);
+        }
       }
     }
 

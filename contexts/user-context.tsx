@@ -62,14 +62,14 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Fetch profile from 'profiles' table
         let { data, error } = await supabase
           .from("profiles")
-          .select("id, email, water_bottle_saved, water_subscription_status, membership_status, stripe_customer_id")
+          .select("id, water_bottle_saved, water_subscription_status, stripe_customer_id")
           .eq("id", session.user.id)
           .single();
         if (error?.code === 'PGRST116' || error?.code === '42703' || error?.message?.includes('does not exist')) {
           // Profile row does not exist or column mismatch, create a minimal row
           const { data: created, error: insertError } = await supabase
             .from("profiles")
-            .insert({ id: session.user.id, email: session.user.email ?? "", water_bottle_saved: 0 })
+            .insert({ id: session.user.id, water_bottle_saved: 0 })
             .select()
             .single();
           if (insertError) console.log("Profile creation error:", insertError);
@@ -80,10 +80,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (data) {
           setUser({
             id: data.id,
-            email: data.email,
+            email: session.user.email ?? "",
             water_subscription_status: data.water_subscription_status,
-            membership_status: data.membership_status,
             water_bottle_saved: data.water_bottle_saved || 0,
+            stripe_customer_id: data.stripe_customer_id,
           });
         } else {
           // No profile yet or other fetch error – still consider the user logged in with minimal data
@@ -169,16 +169,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Fetch fresh profile from Supabase after update
       let { data, error } = await supabase
         .from("profiles")
-        .select("id, email, water_bottle_saved, water_subscription_status, membership_status")
+        .select("id, water_bottle_saved, water_subscription_status, stripe_customer_id")
         .eq("id", user.id)
         .single();
       if (!error && data) {
         setUser({
           id: data.id,
-          email: data.email,
+          email: session.user.email ?? "",
           water_subscription_status: data.water_subscription_status,
-          membership_status: data.membership_status,
           water_bottle_saved: data.water_bottle_saved || 0,
+          stripe_customer_id: data.stripe_customer_id,
         });
       }
     }

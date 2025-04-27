@@ -9,10 +9,10 @@ export interface MetaRecord {
 // OPTIONAL: profile interface matching Supabase `profiles` (kept minimal for now)
 export interface CachedProfile {
   id: string;
-  email: string;
+  email: string; // still cached separately, but not stored in profiles table
   username?: string | null;
   water_subscription_status?: string | null;
-  membership_status?: string | null;
+  // membership_status removed from schema
   water_bottle_saved: number;
   medical_exemption?: boolean | null;
   confirmed_address?: string | null;
