@@ -109,7 +109,7 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
                   return;
                 }
                 setLoading(true);
-                setError(null);
+                
                 try {
                   const res = await fetch('/api/create-stripe-billing-portal-session', {
                     method: 'POST',
@@ -120,15 +120,12 @@ export default function ManageSubscriptionPanel({ status, open, onClose, stripeC
                   if (data.url) {
                     window.location.href = data.url;
                   } else {
-                    setError(data.error || 'Failed to open billing portal.');
+                    console.error('Failed to open billing portal:', data.error);
                   }
                 } catch (e: unknown) {
-  let message = 'Unknown error';
-  if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
-    message = (e as { message: string }).message;
-  }
+  
   console.error('Subscription error:', e);
-setError(message);
+
                 } finally {
                   setLoading(false);
                 }
@@ -149,7 +146,7 @@ setError(message);
                   return;
                 }
                 setLoading(true);
-                setError(null);
+                
                 try {
                   const res = await fetch('/api/create-stripe-billing-portal-session', {
                     method: 'POST',
@@ -160,15 +157,12 @@ setError(message);
                   if (data.url) {
                     window.location.href = data.url;
                   } else {
-                    setError(data.error || 'Failed to open billing portal.');
+                    console.error('Failed to open billing portal:', data.error);
                   }
                 } catch (e: unknown) {
-  let message = 'Unknown error';
-  if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
-    message = (e as { message: string }).message;
-  }
+  
   console.error('Subscription error:', e);
-setError(message);
+
                 } finally {
                   setLoading(false);
                 }
@@ -211,7 +205,7 @@ setError(message);
         } catch (e: unknown) {
           // Optionally handle unknown error
           console.error('Subscription error:', e);
-setError(message);
+
         } finally {
           setLoading(false);
         }
