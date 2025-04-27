@@ -8,13 +8,17 @@ export default function AuthCallback() {
   const router = useRouter();
 
   useEffect(() => {
+    // Handle Supabase magic link/callback, then redirect
     (async () => {
-      // Consume the one‑time token in the URL, refresh session, store to localStorage
-      await supabase.auth.getSession();
-      // Redirect to homepage or returnTo param
-      const url = new URL(window.location.href);
-      const returnTo = url.searchParams.get("returnTo") || "/";
-      router.replace(returnTo);
+      try {
+        await supabase.auth.getSession();
+      } catch (err) {
+        console.error("Auth callback error:", err);
+      } finally {
+        const url = new URL(window.location.href);
+        const returnTo = url.searchParams.get("returnTo") || "/";
+        router.replace(returnTo);
+      }
     })();
   }, [router]);
 
