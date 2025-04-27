@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useState, useEffect, type ReactNode } from "react";
 import { supabase } from "../lib/supabaseClient";
-import { db } from "../lib/dexieClient";
 import { refillFacts } from "../lib/refillFacts";
 
 const firstFiveFacts = [
@@ -86,14 +85,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
             membership_status: data.membership_status,
             water_bottle_saved: data.water_bottle_saved || 0,
           });
-          // Cache profile locally for offline access
-          db.profiles.put({
-            id: data.id,
-            email: data.email,
-            water_bottle_saved: data.water_bottle_saved || 0,
-            water_subscription_status: data.water_subscription_status,
-            membership_status: data.membership_status,
-          });
         } else {
           // No profile yet or other fetch error – still consider the user logged in with minimal data
           setUser({
@@ -101,32 +92,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
             email: session.user.email ?? "",
             water_bottle_saved: 0,
           });
-          db.profiles.put({
-            id: session.user.id,
-            email: session.user.email ?? "",
-            water_bottle_saved: 0,
-          });
         }
       } else {
-        // No Supabase session, try Dexie offline profile
-        const cached = await db.profiles.toCollection().first();
-        if (cached) {
-          setUser({
-            id: cached.id,
-            email: cached.email,
-            username: cached.username == null ? undefined : cached.username,
-            water_bottle_saved: cached.water_bottle_saved,
-            water_subscription_status: cached.water_subscription_status == null ? undefined : cached.water_subscription_status,
-            membership_status: cached.membership_status == null ? undefined : cached.membership_status,
-            medical_exemption: cached.medical_exemption == null ? undefined : cached.medical_exemption,
-            confirmed_address: cached.confirmed_address == null ? undefined : cached.confirmed_address,
-            whatsapp_number: cached.whatsapp_number == null ? undefined : cached.whatsapp_number,
-            created_at: cached.created_at == null ? undefined : cached.created_at,
-            stripe_customer_id: cached.stripe_customer_id == null ? undefined : cached.stripe_customer_id,
-          });
-        } else {
-          setUser(null);
-        }
+        // No Supabase session, set user to null
+        setUser(null);
       }
       setIsLoading(false);
     };
@@ -134,7 +103,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     // Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session?.user) {
-        // Do not clear Dexie profile on logout, just set user to null
         setUser(null);
       }
       else getProfile();
@@ -156,7 +124,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     await supabase.auth.signOut();
     setUser(null);
-    // Dexie profile is intentionally NOT cleared, so offline mode works
   };
 
   // Update user profile in Supabase
@@ -169,15 +136,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
       .select()
       .single();
     if (updated) setUser({ ...user, ...updated });
-    if (updated) {
-      db.profiles.put({
-        id: updated.id,
-        email: updated.email,
-        water_bottle_saved: updated.water_bottle_saved ?? user.water_bottle_saved,
-        water_subscription_status: updated.water_subscription_status ?? user.water_subscription_status,
-        membership_status: updated.membership_status ?? user.membership_status,
-      });
-    }
   };
 
   // Claim first free refill
@@ -198,13 +156,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
 
-  // Add a refill if allowed, update Supabase & Dexie
+  // Add a refill if allowed, update Supabase
   const addRefill = async (): Promise<boolean> => {
     if (!user) return false;
     if (!canRefill()) return false;
     const newCount = (user.water_bottle_saved || 0) + 1;
     setUser({ ...user, water_bottle_saved: newCount });
-    db.profiles.put({ ...user, water_bottle_saved: newCount });
     // Try to sync if online and logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
@@ -222,13 +179,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
           water_subscription_status: data.water_subscription_status,
           membership_status: data.membership_status,
           water_bottle_saved: data.water_bottle_saved || 0,
-        });
-        db.profiles.put({
-          id: data.id,
-          email: data.email,
-          water_bottle_saved: data.water_bottle_saved || 0,
-          water_subscription_status: data.water_subscription_status,
-          membership_status: data.membership_status,
         });
       }
     }
@@ -254,7 +204,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (!user) return;
     if (user.water_subscription_status === "active") return;
     setUser({ ...user, water_subscription_status: "active" });
-    db.profiles.put({ ...user, water_subscription_status: "active" });
     // Try to sync if online and logged in
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
