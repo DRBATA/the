@@ -7,6 +7,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+// New admin client to bypass RLS when updating profiles
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 async function mainHandler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -30,9 +35,19 @@ async function mainHandler(req: NextApiRequest, res: NextApiResponse) {
     if (profile && profile.stripe_customer_id) {
       customerId = profile.stripe_customer_id;
     } else {
-      const customer = await stripe.customers.create({ email });
+      // Always include both supabase_user_id and email in metadata for new users
+      const customer = await stripe.customers.create({
+        email,
+        metadata: { supabase_user_id: supabaseUserId, email },
+      });
       customerId = customer.id;
-      await supabase.from('profiles').update({ stripe_customer_id: customerId }).eq('id', supabaseUserId);
+      const { error: updateError } = await supabaseAdmin
+        .from('profiles')
+        .update({ stripe_customer_id: customerId })
+        .eq('id', supabaseUserId);
+      if (updateError) {
+        console.error('[create-stripe-checkout-session] Failed to update stripe_customer_id:', updateError);
+      }
     }
     // 2. Create Checkout Session with user ID in metadata
     const session = await stripe.checkout.sessions.create({
@@ -71,4 +86,3 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     }
   }
 }
-

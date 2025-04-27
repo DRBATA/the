@@ -7,6 +7,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 );
+// Admin client to bypass RLS
+const supabaseAdmin = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL!,
+  process.env.SUPABASE_SERVICE_ROLE_KEY!
+);
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
@@ -17,9 +22,20 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing supabaseUserId' });
   }
   try {
-    // Lookup Stripe customer ID
-    const { data: profile, error } = await supabase.from('profiles').select('stripe_customer_id').eq('id', supabaseUserId).single();
-    if (error || !profile?.stripe_customer_id) {
+    // Lookup Stripe customer ID using admin client to bypass RLS
+    const { data: profile, error } = await supabaseAdmin
+      .from('profiles')
+      .select('stripe_customer_id')
+      .eq('id', supabaseUserId)
+      .single();
+    
+    if (error) {
+      console.error(`[create-stripe-billing-portal] DB error for user ${supabaseUserId}:`, error);
+      return res.status(400).json({ error: 'Error retrieving user profile' });
+    }
+    
+    if (!profile?.stripe_customer_id) {
+      console.error(`[create-stripe-billing-portal] No stripe_customer_id for user ${supabaseUserId}`);
       return res.status(400).json({ error: 'Stripe customer ID not found' });
     }
     const portalSession = await stripe.billingPortal.sessions.create({
@@ -32,6 +48,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     if (typeof e === 'object' && e !== null && 'message' in e && typeof (e as { message?: unknown }).message === 'string') {
       message = (e as { message: string }).message;
     }
+    console.error(`[${new Date().toISOString()}] Error in create-stripe-billing-portal:`, {
+      message,
+      error: e,
+      supabaseUserId
+    });
     res.status(500).json({ error: message });
   }
 }
