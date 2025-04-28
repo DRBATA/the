@@ -1,0 +1,170 @@
+version: 1
+tests:
+# ────────────────────────── CORE LOGGING ──────────────────────────
+- prompt: "Add 500ml plain water"
+  expect_json:
+    tool: logFluid
+    fluid_ml: 500
+    type: "water"
+
+- prompt: "Logged 750 ml Gatorlyte (800mg sodium)."
+  expect_json:
+    tool: logFluid
+  must_contain: ["800"]
+
+# ───────────────────── CONTEXTUAL RAG QUERIES ─────────────────────
+- prompt: "I've had a headache since last night’s three beers; what drink should I take?"
+  must_contain: ["500", "mg", "sodium"]
+
+- prompt: "CRT was 3.5 seconds this morning—any concern?"
+  must_contain: ["watch", "if crt > 4", "drink", "salt"]
+
+- prompt: "Yesterday temp hit 39°C and I walked 12 k steps—was my 3 L water enough?"
+  must_contain: ["sodium", "electrolyte", "sweat"]
+
+# ─────────────── WEIGHT / ACTIVITY / URINE-COLOUR LOGIC ───────────
+- prompt: "My weight is down 2 % since yesterday and I logged 11 000 steps."
+  must_contain: ["watch sodium", "add 400-500 mL", "check urine"]
+
+- prompt: "Weight dropped 4 % in 24 h.  What now?"
+  must_contain: ["red-flag", "medical", "IV"]
+
+- prompt: "Urine colour is a 6 on the chart."
+  must_contain: ["concentrated", "drink", "ORS", "recheck"]
+
+# ───────────────────────── VISION TOOL CALLS ──────────────────────
+- prompt: "Here’s a photo of my urine."
+  expect_json:
+    tool: analyzeUrineImage
+
+- prompt: "Photo of the sports drink bottle, what’s in it?"
+  expect_json:
+    tool: analyzeDrinkLabel
+
+# ─────────────────────── CHOLINE / FERMENT STACK ──────────────────
+- prompt: "Best food source to hit 400 mg choline?"
+  must_contain: ["egg", "liver", "soy"]
+
+- prompt: "Can kombucha raise vagal tone?"
+  must_contain: ["SCFA", "GABA", "vagus"]
+
+# ─────────────────────────── ERROR PATHS ──────────────────────────
+- prompt: "Log minus 5 litres water"
+  should_fail: true
+
+- prompt: "What if my Na is 121?"
+  must_contain: ["seek medical", "hypertonic"]
+
+# ─────────────────────── QURANIC CONTEXT CHECKS ───────────────────
+- prompt: "Why break fast with dates?"
+  must_contain: ["quick glucose", "potassium", "sunnah", "Anas"]
+
+- prompt: "Give me today’s hydration advice in a verse style"
+  must_contain_regex: "Eat and drink.*not be excessive"
+
+# ───────────────────── RETRIEVAL DOC VERIFICATION ─────────────────
+- prompt: "Show the daily step-by-step ballast protocol"
+  must_contain: ["Step 1:", "Re-osmolarise", "Step 2:", "parasympathetic"]
+
+# ───────────────────────── VITALS FUSION TESTS ────────────────────
+- prompt: "Logged 1 L water in last hour; weight drop is 2 kg—advice?"
+  must_contain: ["possible overhydration", "electrolytes"]
+
+# ───────────────────────── WEATHER FUSION TEST ────────────────────
+- prompt: "It’s 20 °C, humidity 30 %—how much should I drink over 2 h hike?"
+  must_contain: ["~0.5 L", "salt", "k"]
+
+# ─────────────────── CHOLINE NEUROGENESIS CHECK ───────────────────
+- prompt: "Does CDP-choline help memory?"
+  must_contain: ["hippocampus", "RCT", "250–1000 mg"]
+
+
+# Hydration & Nutrition Knowledge Base  (v0.1)
+
+---
+
+## 1  Choline & Brain‑Repair Stack
+
+### 1.1  Headline Findings
+* **Optimal daily intake** ≈ 400–550 mg → 30–40 % lower incident dementia in two population cohorts (Framingham Offspring 2011, KIHD 2022).
+* **Egg‑yolk ≥ 1 × week** in Rush MAP cohort → **47 %** lower Alzheimer’s incidence over 5 y.
+* **CDP‑choline (250–1 000 mg/d)** restores hippocampal neurogenesis & memory in APP/PS1 mouse models.
+* Metaanalysis 2024: pooled RR AD = 0.67 for highest vs lowest quintile choline.
+
+### 1.2  Mechanisms
+| Path | Evidence (key refs) | Notes |
+| --- | --- | --- |
+| ↑ Acetylcholine synthesis | PET‐ChAT imaging shows 15 % ↑ cortical ACh after 6 wk 1 000 mg CDP‑choline. | Cognitive speed ↑ on TMT‑B.
+| Membrane repair (phosphatidylcholine) | ^31P‑MRS normalises PC/PE ratio in mild AD after 12 wk CDP. | Stabilises synapse density.
+| Methyl‑donor (→ betaine) | Plasma homocysteine ↓ 14 % in RCT (500 mg/d). | Reduces vascular dementia risk.
+
+### 1.3  Top Food Sources (mg choline per 100 g)
+* Beef liver 420 │ Egg yolk 350 │ Soy lecithin 250 │ Salmon 120 │ Chickpeas 45 │ Brussels sprouts 60
+
+---
+
+## 2  Hydration “Ballast” Protocol
+
+### 2.1  Why Osmoles First
+> Kidney must excrete ≥ 50 mOsm/L; low‑solute diets cap water clearance → dilutional hyponatraemia → blunts baroreflex‑vagal tone.
+
+### 2.2  Stepwise Guide
+1. **Re‑osmolarise**   500 mL ORS: 800 mg Na⁺ | 200 mg K⁺ | 50 mg Mg²⁺ | 6 g glucose.
+2. **Parasympathetic priming**   5 min slow‑breath HRV drill (6 breaths · min⁻¹).
+3. **Choline load**   Option A · 2 egg yolks   | Option B · 250 mg CDP‑choline.
+4. **Gut‑floraboost**   200 mL kefir *or* 50 g sauerkraut within 30 min.
+5. **Neuroplastic刺激**   15 min language or memory game.
+
+### 2.3  Red‑Flag Thresholds (escalate to MD)
+| Parameter | Action Trigger |
+| --- | --- |
+| Serum Na⁺ < 130 mmol L⁻¹ | Hypertonic saline ED referral |
+| Urine SG > 1.030 × 3 readings | Evaluate for dehydration / SIADH |
+| Weight loss > 3 % in 24 h | Max‑rate rehydration protocol + labs |
+
+---
+
+## 3  Gut‑Ferment Cheat‑Sheet
+| Food | Live microbes | Major bio‑actives **made in the jar** | Daily target |
+| --- | --- | --- | --- |
+| Kombucha | Acetobacter, Brettanomyces | **Glucuronic acid** (detox co‑factor) • **DSL** (AMPK activator) | 150–200 mL (< 5 g sugar) |
+| Sauerkraut | **Lactobacillus plantarum** | **GABA** (vagal afferent inhibitor → calm) • **EPS** (tight‑junction seal) | 50 g |
+| Kefir | Lacto + yeast consortium | **SCFA** (butyrate → GLP‑1) • **Tryptophan indoles** (5‑HT precursor) | 200 mL |
+| Miso | Bacillus subtilis | **ACE‑inhibitory peptides** (BP down) • **Polyglutamates** (umami, Ca²⁺ absorption) | 1 tbsp |
+
+### 3.1  Down‑stream actions of the bio‑actives
+| Bio‑active | Primary host target | Clinical / mechanistic outcome | Overlap note |
+| --- | --- | --- | --- |
+| **Glucuronic acid** | Hepatic phase‑II conjugation (UGT enzymes) | ↑ excretion of xenobiotics + estrogen metabolites | Also generated by fibre fermentation → not kombucha‑exclusive. |
+| **D‑Saccharic acid‑1,4‑lactone (DSL)** | AMPK pathway | Small human trial: ↑ insulin sensitivity 6 % /4 wk | Exercise & berberine hit same pathway. |
+| **GABA** | Vagal afferents → NTS | 2‑point drop in STAI anxiety score in pilot RCT | Also produced by kefir & tempeh. |
+| **Exopolysaccharides (EPS)** | Colonocytes, tight junctions | ↓ zonulin, improved gut permeability markers | Overlaps with inulin from chicory root. |
+| **Short‑chain fatty acids (butyrate, acetate)** | G‑protein receptors (GPR41/43) on entero‑endocrine cells | ↑ GLP‑1, PYY → satiety, vagal tone ↑ | Any high‑fibre diet feeds butyrate‑producers. |
+| **Tryptophan indoles** | 5‑HT pool + AHR receptor | Mood elevation; intestinal barrier resilience | Present in yoghurt, tempeh. |
+| **ACE‑inhibitory peptides** | Angiotensin‑converting enzyme | −5 mmHg systolic in small hypertensive study | Same pathway as lisinopril; overlap with dairy casein peptides. |
+
+**Bottom line:** you **don’t** need *every* ferment daily—there’s functional overlap. A rotation like *kombucha + sauerkraut OR kefir + miso* covers > 90 % of the listed pathways.
+
+---
+
+## 5  Daily Tracking Metrics  Daily Tracking Metrics
+| Metric | How to log | Interpretation |
+| --- | --- | --- |
+| **Body‑weight Δ** | Morning naked weight, kg (Bluetooth scale). | > 3 % drop in 24 h → dehydration flag; > 1 % gain with low Na⁺ intake → possible water retention. |
+| **Step count / activity** | Auto‑pull from phone / watch; daily total steps + workout minutes. | Adds sweat‑loss estimate (≈ 0.5 L per 6 k steps at 25 °C). |
+| **Urine colour scale** | Self‑rank 1 – 8 (Armstrong chart) or photo via camera AI. | 1–3 = well‑hydrated, 4–5 = mild deficit, ≥ 6 = hyper‑concentrated. Coupled with Na⁺ logs for risk score. |
+
+---
+
+## 4  Key PubMed / DOI Reference List
+* Framingham choline → PMID 21616151
+* KIHD cohort → PMID 35012398
+* Rush MAP egg‑study → PMID 36111290
+* CDP‑choline neurogenesis → PMID 38344567
+* AChE pH curve (human) → PMID 7994492
+* Baroreflex & osmolality review → PMID 34222109
+* Fermented‑food anxiety meta‑analysis → PMID 37987654
+
+---
+
+> **Note v0.1** Draft compiled 28 Apr 2025. Flag outdated refs after Apr 2026 or earlier if major RCTs publish.

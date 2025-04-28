@@ -1,0 +1,44 @@
+openapi: 3.0.0
+info:
+  title: Hydration API
+  version: 1.0.0
+paths:
+  /api/hydration-logs:
+    get:
+      summary: Get hydration logs
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HydrationLog'
+    post:
+      summary: Log a hydration event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HydrationLogInput'
+      responses:
+        '201':
+          description: Created
+components:
+  schemas:
+    HydrationLog:
+      type: object
+      properties:
+        id:
+          type: string
+        volume_ml:
+          type: integer
+        timestamp:
+          type: string
+    HydrationLogInput:
+      type: object
+      properties:
+        volume_ml:
+          type: integer
