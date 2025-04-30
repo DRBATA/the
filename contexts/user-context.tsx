@@ -4,6 +4,12 @@ import { createContext, useContext, useState, useEffect, type ReactNode } from "
 import { supabase } from "../lib/supabaseClient";
 import { refillFacts } from "../lib/refillFacts";
 
+
+declare global {
+  interface Window { __guestDataSynced?: boolean }
+}
+
+
 const firstFiveFacts = [
   "You just saved your first bottle—way to go!",
   "Second refill—keep it up!",
@@ -85,6 +91,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
             water_bottle_saved: data.water_bottle_saved || 0,
             stripe_customer_id: data.stripe_customer_id,
           });
+          // Auto-sync guest data to Supabase on login (only once per session)
+          if (!window.__guestDataSynced) {
+            window.__guestDataSynced = true;
+            syncGuestDataToSupabase(data.id).then(() => {
+              window.dispatchEvent(new CustomEvent("guest-sync-toast", { detail: { message: "Your data has been saved to your account!" } }));
+            });
+          }
         } else {
           // No profile yet or other fetch error – still consider the user logged in with minimal data
           setUser({

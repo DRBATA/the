@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Hydration Agent Tools
+  version: 1.0.0
+paths:
+  /log_hydration:
+    post:
+      summary: Log a hydration event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: Unique user identifier
+                fluid_ml:
+                  type: integer
+                  description: Volume of fluid consumed in milliliters
+                drink_type:
+                  type: string
+                  description: Type of drink (water, coffee, etc.)
+                electrolyte_support:
+                  type: boolean
+                  description: True if drink contains electrolytes
+                caffeine_present:
+                  type: boolean
+                  description: True if drink contains caffeine
+                hydration_multiplier:
+                  type: number
+                  description: Hydration effect multiplier (e.g., coffee=0.6)
+                urine_color:
+                  type: integer
+                  description: Optional, 1-8 scale (hydration status)
+                weight_kg:
+                  type: number
+                  description: Optional, user's weight in kg
+                notes:
+                  type: string
+                  description: Optional, free text notes
+      responses:
+        '200':
+          description: Log successful
+  /get_hydration_status:
+    get:
+      summary: Get hydration status for a user
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Hydration status returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  hydration_level:
+                    type: string
+                  urine_color:
+                    type: integer

@@ -1,0 +1,129 @@
+openapi: 3.0.0
+info:
+  title: Drinks Agent Tools
+  version: 1.0.0
+paths:
+  /analyze_drink_label:
+    post:
+      summary: Analyze a drink label image
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: User's unique ID
+                image:
+                  type: string
+                  format: binary
+                  description: Image file of the drink label
+      responses:
+        '200':
+          description: Nutrition info extracted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  sodium_mg:
+                    type: integer
+                  potassium_mg:
+                    type: integer
+                  sugar_g:
+                    type: integer
+                  caffeine_mg:
+                    type: integer
+                  eco_score:
+                    type: string
+  /log_hydration_event:
+    post:
+      summary: Log a user's hydration event (drink intake)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                  description: User's unique ID
+                drink_id:
+                  type: string
+                  description: Unique drink or product identifier
+                volume_ml:
+                  type: integer
+                  description: Volume of drink consumed in milliliters
+                timestamp:
+                  type: string
+                  description: ISO timestamp of the event (optional)
+              required:
+                - user_id
+                - drink_id
+                - volume_ml
+      responses:
+        '200':
+          description: Hydration event successfully logged
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  event:
+                    type: object
+  /get_drink_info:
+    get:
+      summary: Get detailed drink product and nutrition info
+      parameters:
+        - in: query
+          name: drink_id
+          schema:
+            type: string
+          required: true
+          description: Unique drink or product identifier
+      responses:
+        '200':
+          description: Drink info returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                  text:
+                    type: string
+                  metadata:
+                    type: object
+                    properties:
+                      brand:
+                        type: string
+                      format:
+                        type: string
+                      sugar_free:
+                        type: boolean
+                      price_aed_serving:
+                        type: number
+                      sodium_mg:
+                        type: integer
+                      potassium_mg:
+                        type: integer
+                      magnesium_mg:
+                        type: integer
+                      calcium_mg:
+                        type: integer
+                      calories_kcal:
+                        type: integer
+                      hydration_factor:
+                        type: integer
+                      available_in_uae:
+                        type: boolean
+                      last_checked:
+                        type: string
+                      data_type:
+                        type: string

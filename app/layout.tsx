@@ -3,6 +3,7 @@ import "./globals.css";
 
 import { UserProvider } from "../contexts/user-context";
 import { ToastContainer } from "./components/ToastNotification";
+import { GuestSyncToastListener } from "./components/GuestSyncToastListener";
 import RefillOfferToast from "../components/RefillFactToast";
 
 
@@ -20,6 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <UserProvider>
           {children}
+
           <ToastContainer />
           <RefillOfferToast />
         </UserProvider>

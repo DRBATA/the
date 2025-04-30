@@ -2,12 +2,11 @@
 import { useState } from "react";
 import Image from "next/image";
 import AttendeeModal from "./components/AttendeeModal";
-import FindRefillButton from "./components/FindRefillButton";
-import GetRefillButton from "./components/GetRefillButton";
+import BubbleHub from "./components/BubbleHub";
+import DrinkTracker from "./components/DrinkTracker";
+import RefillTracker from "./components/RefillTracker";
 import SubscribeButton from "./components/SubscribeButton";
 import ManageSubscriptionPanel from "./components/ManageSubscriptionPanel";
-import LoginButton from "./components/LoginButton";
-import SignatureEventButton from "./components/SignatureEventButton";
 import MagicLinkLogin from "./components/MagicLinkLogin";
 import { useUser } from "../contexts/user-context";
 
@@ -32,14 +31,17 @@ function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () =
   );
 }
 
-import FeatureExplainModal from "./components/FeatureExplainModal";
+
 import LocationModal from "../components/LocationModal";
+import HydrationChat from "./components/HydrationChat";
 
 // firstFiveFacts / sixToTenFacts removed – no longer needed after gating change
 
 
 
 import SplashScreen from "./components/SplashScreen";
+
+import { useRouter } from "next/navigation";
 
 export default function HomePage() {
   const [showSplash, setShowSplash] = useState(true);
@@ -50,7 +52,11 @@ export default function HomePage() {
   const [showInfo, setShowInfo] = useState(false);
   const [infoFeature, setInfoFeature] = useState<string|null>(null);
   const [loginOpen, setLoginOpen] = useState(false);
+  const [showDrinkTracker, setShowDrinkTracker] = useState(false);
+  const [showRefillTracker, setShowRefillTracker] = useState(false);
+  const [showChat, setShowChat] = useState(false);
   const { user, isLoading, logout, addRefill } = useUser();
+  const router = useRouter();
 
   // Placeholder for attendee logic (to be re-integrated if needed)
   const attendee = null;
@@ -91,7 +97,19 @@ export default function HomePage() {
       return;
     }
 
-    // If user not logged in, show explanation modal for all gated features
+    // Direct navigation for 'purpose' button
+    if (feature === "purpose") {
+      router.push('/purpose');
+      return;
+    }
+    // Remove login gating for 'hydrate' (always accessible)
+    if (feature === "hydrate") {
+      setShowInfo(true);
+      setInfoFeature(feature);
+      return;
+    }
+
+    // If user not logged in, show explanation modal for all other gated features
     if (!user) {
       setShowInfo(true);
       setInfoFeature(feature);
@@ -105,6 +123,7 @@ export default function HomePage() {
       } else {
         window.showToast?.("Subscribe for unlimited refills after 5", "info");
         window.showToast?.("Water Bar subscription coming soon!", "info");
+        setPanelOpen(true);
       }
     } else if (feature === "signatureEvent") {
       window.open("https://buy.stripe.com/00g29q1B89kPanmcOb", "_blank");
@@ -115,7 +134,6 @@ export default function HomePage() {
 
   return (
     <section className="relative w-full h-[100vh] flex items-center justify-center">
-      
       <Image
         src="/backgroundtwb.png"
         alt="The Water Bar Background"
@@ -125,50 +143,33 @@ export default function HomePage() {
         className="z-0"
       />
       <div className="absolute inset-0 bg-black/40 flex flex-col items-center justify-center z-10">
-        <div className="flex flex-col space-y-4 w-full max-w-xs">
-          <FindRefillButton onClick={() => handleAction('findRefill')} />
-          <GetRefillButton onClick={() => handleAction('getRefill')} />
-          {/* Log In/Profile Button, context-aware */}
-          {isLoading ? (
-            <div className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-gray-100 text-gray-400 text-center">Loading...</div>
-          ) : user ? (
-            <div className="flex flex-col items-center w-full">
-              <div className="mb-1 text-white text-center text-base">Welcome, <span className="font-semibold">{user.email}</span></div>
-              <div className="mb-2 text-sm text-emerald-100">
-                Plastic saved: <span className="font-bold">{user.water_bottle_saved}</span> bottles
-                <span className="mx-2">|</span>
-                CO₂ saved: <span className="font-bold">{(user.water_bottle_saved * 82.8 / 1000).toFixed(2)} kg</span>
-                <a href="https://www.wwf.org.uk/updates/how-much-plastic-do-we-use" target="_blank" rel="noopener noreferrer" className="ml-1 underline text-xs text-gray-300 hover:text-emerald-200">(source)</a>
-              </div>
-              
-              <button className="px-8 py-4 rounded-full font-bold text-lg shadow-lg bg-white text-emerald-700 border border-emerald-200 hover:bg-gray-100 transition w-full" onClick={logout}>
-                Log Out
-              </button>
-            </div>
-          ) : (
-            <LoginButton onClick={() => setLoginOpen(true)} />
-          )}
-          <SubscribeButton
-            onClick={() => setPanelOpen(true)}
-            subscribed={user?.water_subscription_status === 'active'}
-          />
-          <ManageSubscriptionPanel
-            status={user?.water_subscription_status}
-            open={panelOpen}
-            onClose={() => setPanelOpen(false)}
-            stripeCustomerId={user?.stripe_customer_id}
-          />
-          <SignatureEventButton onClick={() => handleAction('signatureEvent')} />
-        </div>
-        <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} onInfoOpen={() => setShowInfo(true)} />
-        {/* Feature Explanation Modal (for users) */}
-        <FeatureExplainModal
-          open={showInfo}
-          onClose={() => { setShowInfo(false); setInfoFeature(null); }}
-          onInfoClose={() => { setShowInfo(false); setInfoFeature(null); }}
-          feature={infoFeature}
+        <BubbleHub
+          hydrationPercentage={hydrationPercentage}
+          carbonSaved={carbonSaved}
+          bottlesSaved={bottlesSaved}
+          initialBubblesPosition={bubblesPosition}
+          initialBubblePosition={bubblePos}
+          onHydrateAction={() => setShowChat(true)}
+          onPurposeAction={() => router.push('/purpose')}
+          onRefillAction={() => setLocationModalOpen(true)}
+          onProfileAction={() => router.push('/profile')}
+          onHistoryAction={() => router.push('/history') }
+          onCentralDragUpAction={() => setShowRefillTracker(true)}
+          onCentralDragDownAction={() => setShowDrinkTracker(true)}
         />
-        {/* Login Modal (triggered only from within FeatureExplainModal) */}
+        <LocationModal open={locationModalOpen} onCloseAction={() => setLocationModalOpen(false)} onInfoOpen={() => setShowInfo(true)} />
+
+        {showChat && (
+          <HydrationChat
+            onClose={() => setShowChat(false)}
+          />
+        )}
+        {showRefillTracker && (
+          <RefillTracker
+            dragProgress={1}
+            onCompleteAction={() => setShowRefillTracker(false)}
+          />
+        )}
         {loginOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
             <div className="bg-white rounded-xl shadow-lg p-6 w-full max-w-xs relative">

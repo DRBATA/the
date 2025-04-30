@@ -1,0 +1,27 @@
+openapi: 3.0.0
+info:
+  title: Weather Agent Tools
+  version: 1.0.0
+paths:
+  /get_weather:
+    get:
+      summary: Get current weather for a user
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Weather data returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  temperature:
+                    type: number
+                  humidity:
+                    type: number
+                  location:
+                    type: string

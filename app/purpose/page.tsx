@@ -3,38 +3,110 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { Heart } from "lucide-react";
-import FloatingBubbles from "../../components/FloatingBubbles";
+import FloatingBubbles from "../components/FloatingBubbles";
 
-const affirmations = [
-  "May this water nourish my body and spirit.",
-  "I am grateful for this moment.",
-  "I infuse my water with positivity and health.",
-  "Every sip supports my wellbeing.",
-  "I honor the earth with my choices.",
-];
+// Affirmation categories with 6 tags and 10 affirmations each
+const affirmationCategories = {
+  gratitude: [
+    "With gratitude, I welcome this water.",
+    "I am thankful for each refreshing sip.",
+    "My heart overflows with appreciation.",
+    "Gratitude nourishes my mind and body.",
+    "I cherish the gift of hydration.",
+    "May gratitude flow through this water.",
+    "I give thanks for life's sustaining water.",
+    "This drink is a blessing.",
+    "I honor all hands that brought this water.",
+    "Gratefulness amplifies my wellbeing."
+  ],
+  health: [
+    "My body thrives with this water.",
+    "I choose vibrant health.",
+    "Each sip renews my cells.",
+    "Water carries vitality within me.",
+    "I am hydrated and healthy.",
+    "Wellness flows through me.",
+    "I support my immune strength.",
+    "Hydration fuels my energy.",
+    "I nurture my body with water.",
+    "Health blossoms in every drop."
+  ],
+  clarity: [
+    "Water clears my mind like a calm lake.",
+    "Each sip sharpens my focus.",
+    "I invite mental clarity.",
+    "My thoughts flow with ease.",
+    "Crystal clear insight fills me.",
+    "I release all mental fog.",
+    "Clarity rises with every drop.",
+    "My intentions are transparent and pure.",
+    "This water reflects clear purpose.",
+    "I see my path with freshness."
+  ],
+  compassion: [
+    "Kindness flows through me.",
+    "May this water awaken empathy.",
+    "I speak and act with love.",
+    "I share compassion freely.",
+    "My heart expands with each sip.",
+    "I radiate gentle understanding.",
+    "Water connects me to others.",
+    "I honor all beings.",
+    "Peace and compassion guide me.",
+    "I am a source of comfort."
+  ],
+  strength: [
+    "I drink in resilience.",
+    "Each sip fuels my power.",
+    "I stand strong and steady.",
+    "Confidence rises within me.",
+    "I overcome all challenges.",
+    "My spirit is unbreakable.",
+    "Water fortifies my body and mind.",
+    "I persist with courage.",
+    "I am grounded and stable.",
+    "Strength flows in every cell."
+  ],
+  joy: [
+    "I sip pure happiness.",
+    "Joy bubbles within me.",
+    "I celebrate this refreshing moment.",
+    "This water sparkles with delight.",
+    "My day is bright and cheerful.",
+    "I laugh with each sip.",
+    "I embrace playfulness.",
+    "Happiness hydrates my soul.",
+    "I shine with enthusiasm.",
+    "Joyful energy fills my being."
+  ]
+} as const;
+
+type Tag = keyof typeof affirmationCategories;
 
 export default function PurposePage() {
   const [ritualStarted, setRitualStarted] = useState(false);
   const [pulsing, setPulsing] = useState(false);
   const [affirmationIdx, setAffirmationIdx] = useState(0);
+  const [selectedTag, setSelectedTag] = useState<Tag>("gratitude");
+
+  const currentAffirmations = affirmationCategories[selectedTag];
 
   const startRitual = () => {
     setRitualStarted(true);
     setPulsing(true);
-    setAffirmationIdx(0);
+
+    let idx = Math.floor(Math.random() * currentAffirmations.length);
+    setAffirmationIdx(idx);
 
     if (navigator.vibrate) {
       navigator.vibrate([20, 30, 20]);
     }
 
-    // Cycle through affirmations
-    let idx = 0;
     const interval = setInterval(() => {
-      idx = (idx + 1) % affirmations.length;
+      idx = (idx + 1) % currentAffirmations.length;
       setAffirmationIdx(idx);
     }, 3000);
 
-    // Stop pulsing and cycling after 10 seconds
     setTimeout(() => {
       setPulsing(false);
       clearInterval(interval);
@@ -44,6 +116,14 @@ export default function PurposePage() {
   return (
     <div className="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 flex flex-col">
       <FloatingBubbles count={10} maxSize={30} />
+      {/* Back Button */}
+      <button
+        className="absolute top-4 left-4 z-20 bg-white/80 rounded-full px-4 py-2 shadow hover:bg-white text-blue-700 flex items-center gap-2"
+        onClick={() => window.location.assign('/')}
+        aria-label="Back to main menu"
+      >
+        ← Main Menu
+      </button>
       {/* Header */}
       <motion.div
         className="flex items-center p-4 z-10"
@@ -66,6 +146,22 @@ export default function PurposePage() {
             Set an intention for your water and infuse it with positive energy
           </p>
         </motion.div>
+        {/* Tag selector */}
+        <div className="flex flex-wrap gap-2 mb-6 justify-center">
+          {Object.keys(affirmationCategories).map((tag) => (
+            <button
+              key={tag}
+              onClick={() => setSelectedTag(tag as Tag)}
+              className={`px-3 py-1 rounded-full text-sm transition ${
+                selectedTag === tag
+                  ? "bg-white/30 text-white"
+                  : "bg-white/10 text-white/70 hover:bg-white/20"
+              }`}
+            >
+              {tag.charAt(0).toUpperCase() + tag.slice(1)}
+            </button>
+          ))}
+        </div>
         {/* Ritual bubble */}
         <motion.div
           className="relative w-48 h-48 flex items-center justify-center mb-12"
@@ -114,7 +210,7 @@ export default function PurposePage() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-center">
                 <Heart className="w-8 h-8 text-white mx-auto mb-2" />
                 <p className="text-white text-sm px-4 min-h-[48px]">
-                  {affirmations[affirmationIdx]}
+                  {currentAffirmations[affirmationIdx]}
                 </p>
               </motion.div>
             ) : (

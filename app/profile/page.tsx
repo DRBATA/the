@@ -3,33 +3,53 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
 import { ArrowLeft, Calendar, Droplet, Award, ShoppingBag, CreditCard, ChevronRight, Check, User } from "lucide-react";
-import FloatingBubbles from "../../components/FloatingBubbles";
-import { useHydration } from "@/contexts/hydration-context";
+import FloatingBubbles from "../components/FloatingBubbles";
+import { useUser } from "../../contexts/user-context";
+import MagicLinkLogin from "../components/MagicLinkLogin";
+import ManageSubscriptionPanel from "../components/ManageSubscriptionPanel";
+import ProfileForm from "./ProfileForm";
 import AssessmentScreen from "./assessment-screen";
 
 export default function ProfilePage() {
-  const { state } = useHydration();
+  const { user, updateUser } = useUser();
   const [showAssessment, setShowAssessment] = useState(false);
+  const [showSubscription, setShowSubscription] = useState(false);
 
   if (showAssessment) {
     return <AssessmentScreen onBack={() => setShowAssessment(false)} />;
   }
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 flex flex-col">
+    <div className="h-full w-full bg-gradient-to-b from-blue-400 to-blue-600 flex flex-col relative">
       <FloatingBubbles count={8} maxSize={25} />
+      {/* Main Menu Button */}
+      <button
+        className="absolute top-4 left-4 z-20 bg-white/80 rounded-full px-4 py-2 shadow hover:bg-white text-blue-700 flex items-center gap-2"
+        onClick={() => window.location.assign('/')}
+        aria-label="Back to main menu"
+      >
+        ← Main Menu
+      </button>
       {/* Header */}
       <motion.div
-        className="flex items-center p-4 z-10"
+        className="flex items-center p-4 z-10 justify-center"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.3 }}
       >
         <h1 className="text-2xl font-light text-white ml-4">Your Profile</h1>
       </motion.div>
+      {/* Profile Form or Magic Link */}
+      <div className="flex flex-col items-center mb-4 z-10">
+        {user ? (
+          <ProfileForm user={user} updateUser={updateUser} />
+        ) : (
+          <div className="my-8"><MagicLinkLogin /></div>
+        )}
+      </div>
       {/* Main content */}
       <div className="flex-1 flex flex-col p-6 z-10 overflow-y-auto">
-        {/* Hydration Assessment */}
+        {/* Profile Overview */}
         <motion.div
           className="bg-white/20 backdrop-blur-sm border border-white/30 rounded-xl p-5 mb-4"
           initial={{ opacity: 0, y: 20 }}
@@ -42,9 +62,9 @@ export default function ProfilePage() {
                 <User className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h2 className="text-white text-lg font-medium">Hydration Assessment</h2>
+                <h2 className="text-white text-lg font-medium">Profile Overview</h2>
                 <p className="text-white/70 text-sm">
-                  {state.userProfile ? "Your personalized hydration profile" : "Complete your assessment"}
+                  {user ? "Your current profile details" : "Please log in or complete your profile."}
                 </p>
               </div>
             </div>
@@ -54,15 +74,14 @@ export default function ProfilePage() {
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowAssessment(true)}
             >
-              {state.userProfile ? "Update" : "Complete"}
+              {user ? "Update" : "Complete"}
             </motion.button>
           </div>
-          {state.userProfile && (
+          {user && (
             <div className="mt-3 grid grid-cols-2 gap-2 text-sm text-white/80">
-              <div>Height: {state.userProfile.height}cm</div>
-              <div>Weight: {state.userProfile.weight}kg</div>
-              <div>Age: {state.userProfile.age}</div>
-              <div>Activity: {state.userProfile.activityLevel}</div>
+              <div>Email: {user.email}</div>
+              <div>WhatsApp: {user.whatsapp_number || "-"}</div>
+              <div>Status: {user.water_subscription_status || "Free"}</div>
             </div>
           )}
         </motion.div>

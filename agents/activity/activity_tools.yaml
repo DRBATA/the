@@ -1,0 +1,46 @@
+openapi: 3.0.0
+info:
+  title: Activity Agent Tools
+  version: 1.0.0
+paths:
+  /log_activity:
+    post:
+      summary: Log a physical activity event
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                user_id:
+                  type: string
+                steps:
+                  type: integer
+                activity_type:
+                  type: string
+                duration_min:
+                  type: integer
+      responses:
+        '200':
+          description: Activity logged
+  /get_activity_status:
+    get:
+      summary: Get activity status for a user
+      parameters:
+        - in: query
+          name: user_id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Activity status returned
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  steps:
+                    type: integer
+                  recent_activity:
+                    type: string
