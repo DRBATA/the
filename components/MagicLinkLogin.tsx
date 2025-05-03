@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
-import { db, MetaRecord } from "../lib/dexieClient";
+
 import { supabase } from "../lib/supabaseClient";
 
 const CONFETTI_COLORS = ["#00C2A0", "#00796B", "#FFD600", "#3DDC97"];
@@ -12,12 +12,7 @@ export default function MagicLinkLogin() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Check for saved email and auto-login if not authenticated
-  useEffect(() => {
-    db.meta.get("lastEmail").then((record: MetaRecord | undefined) => {
-      if (record) setEmail(record.value);
-    });
-  }, []);
+
 
   // Auto-login effect
   useEffect(() => {
@@ -41,7 +36,7 @@ export default function MagicLinkLogin() {
           emailRedirectTo: `${location.origin}/auth/callback`,
         },
       });
-      await db.meta.put({ key: "lastEmail", value: loginEmail });
+      
       setShowConfetti(true);
       setMessage(
         `🎉 Email sent! Check your inbox for your magic link.`
@@ -77,7 +72,7 @@ export default function MagicLinkLogin() {
             type="button"
             onClick={() => {
               setEmail("");
-              db.meta.delete("lastEmail");
+              
             }}
             style={{ background: "transparent", color: "#00796B", border: "none", marginBottom: 8, cursor: "pointer", textDecoration: "underline" }}
           >
