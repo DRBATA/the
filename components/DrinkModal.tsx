@@ -10,6 +10,7 @@ const DRINKS = [
 
 export default function DrinkModal({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: (drink: any) => void }) {
   const [selected, setSelected] = useState<string | null>(null);
+
   const [volume, setVolume] = useState(250);
   const [electrolyte, setElectrolyte] = useState(false);
 
