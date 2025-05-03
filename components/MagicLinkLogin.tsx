@@ -1,4 +1,11 @@
 "use client";
+
+declare global {
+  interface Window {
+    showToast?: (msg: string, type?: string) => void;
+  }
+}
+
 import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 
