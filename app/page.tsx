@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from "react";
 import MagicLinkLogin from "../components/MagicLinkLogin";
-import ProfileModal from "@/components/ProfileModal";
-import DrinkModal from "@/components/DrinkModal";
+import ProfileModal from "../components/ProfileModal";
+import DrinkModal from "../components/DrinkModal";
 import { supabase } from "../lib/supabaseClient";
 
 export default function Home() {
