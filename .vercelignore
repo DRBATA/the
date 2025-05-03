@@ -2,6 +2,7 @@
 !app/
 !app/page.tsx
 !app/layout.tsx
+!app/components/MagicLinkLogin.tsx
 !app/globals.css
 !app/favicon.ico
 !public/
