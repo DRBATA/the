@@ -2,7 +2,9 @@
 !app/
 !app/page.tsx
 !app/layout.tsx
+!components
 !components/**
+!lib
 !lib/**
 !app/globals.css
 !app/favicon.ico
