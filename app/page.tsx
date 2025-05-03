@@ -1,41 +1,19 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
-import AttendeeModal from "./components/AttendeeModal";
-import BubbleHub from "./components/BubbleHub";
-import DrinkTracker from "./components/DrinkTracker";
-import RefillTracker from "./components/RefillTracker";
-import SubscribeButton from "./components/SubscribeButton";
-import ManageSubscriptionPanel from "./components/ManageSubscriptionPanel";
-import MagicLinkLogin from "./components/MagicLinkLogin";
-import { useUser } from "../contexts/user-context";
-
-// import { chooseVenueOffer } from "../utils/venueSelector"; // removed – no longer needed
-// import { refillFacts } from "../lib/refillFacts"; // removed – no longer needed
-
-type Attendee = { name: string; email: string; id: string; confirmed: boolean };
-function TicketModal({ open, onClose, attendee }: { open: boolean, onClose: () => void, attendee: Attendee | null }) {
-  if (!open || !attendee) return null;
+export default function Home() {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-      <div className="bg-white rounded-xl shadow-lg p-8 w-full max-w-md text-center relative">
-        <button className="absolute top-3 right-5 text-2xl text-gray-400 hover:text-gray-600" onClick={onClose}>×</button>
-        <h2 className="text-2xl font-bold mb-2">Your Ticket</h2>
-        <div className="mb-4 text-lg">Show this to the clerk at the helipad.</div>
-        <div className="mb-2 font-semibold">Name: {attendee.name}</div>
-        <div className="mb-2 font-semibold">Email: {attendee.email}</div>
-        <div className="mb-4 font-mono text-xl bg-gray-100 rounded p-2">Ticket Code: {attendee.id}</div>
-        <div className="text-sm text-gray-500">Status: <span className={attendee.confirmed ? "text-emerald-600" : "text-yellow-600"}>{attendee.confirmed ? "Confirmed" : "Pending Payment"}</span></div>
-      </div>
-    </div>
+    <main style={{
+      minHeight: '100vh',
+      width: '100vw',
+      background: '#0074D9',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}>
+      <h1 style={{ color: 'white', fontSize: '3rem', fontWeight: 'bold', letterSpacing: '0.15em' }}>
+        WATER BAR
+      </h1>
+    </main>
   );
 }
-
-
-import LocationModal from "../components/LocationModal";
-import HydrationChat from "./components/HydrationChat";
-
-// firstFiveFacts / sixToTenFacts removed – no longer needed after gating change
 
 
 

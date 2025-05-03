@@ -1,0 +1,10 @@
+*
+!app/
+!app/page.tsx
+!app/globals.css
+!app/favicon.ico
+!public/
+!package.json
+!package-lock.json
+!next.config.ts
+!tsconfig.json
