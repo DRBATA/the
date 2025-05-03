@@ -1,7 +1,7 @@
 import { supabase } from "../../lib/supabaseClient";
 
 // Log food intake
-default export async function log_food_intake({ user_id, food, calories, timestamp }: any) {
+export default async function log_food_intake({ user_id, food, calories, timestamp }: any) {
   const { error } = await supabase.from("food_logs").insert({
     user_id,
     food,
