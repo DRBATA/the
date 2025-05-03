@@ -4,6 +4,8 @@
 !app/layout.tsx
 !components/
 !components/MagicLinkLogin.tsx
+!lib/
+!lib/supabaseClient.ts
 !app/globals.css
 !app/favicon.ico
 !public/
