@@ -2,13 +2,11 @@
 !app/
 !app/page.tsx
 !app/layout.tsx
-!components/
-!components/MagicLinkLogin.tsx
-!lib/
-!lib/supabaseClient.ts
+!components/**
+!lib/**
 !app/globals.css
 !app/favicon.ico
-!public/
+!public/**
 !package.json
 !package-lock.json
 !next.config.ts
