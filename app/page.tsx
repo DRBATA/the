@@ -1,6 +1,6 @@
 "use client";
 
-import MagicLinkLogin from "../../components/MagicLinkLogin";
+import MagicLinkLogin from "../components/MagicLinkLogin";
 
 export default function Home() {
   return (
