@@ -141,7 +141,7 @@ export default function Home() {
       <ProfileModal
         open={showProfile}
         onClose={() => setShowProfile(false)}
-        onSave={async (profile) => {
+        onSave={async (profile: any) => {
           await supabase.from("profiles").update(profile).eq("id", user.id);
           setShowProfile(false);
           // Refresh dashboard
@@ -153,7 +153,7 @@ export default function Home() {
       <DrinkModal
         open={showDrink}
         onClose={() => setShowDrink(false)}
-        onSave={async (drink) => {
+        onSave={async (drink: any) => {
           await supabase.from("hydration_logs").insert({ ...drink, user_id: user.id, timestamp: new Date().toISOString() });
           setShowDrink(false);
           // Refresh dashboard

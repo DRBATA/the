@@ -8,7 +8,7 @@ const DRINKS = [
   { id: "salt", icon: "🧂", name: "Salt Water" },
 ];
 
-export default function DrinkModal({ open, onClose, onSave }) {
+export default function DrinkModal({ open, onClose, onSave }: { open: boolean; onClose: () => void; onSave: (drink: any) => void }) {
   const [selected, setSelected] = useState(null);
   const [volume, setVolume] = useState(250);
   const [electrolyte, setElectrolyte] = useState(false);

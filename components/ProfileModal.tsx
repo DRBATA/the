@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-export default function ProfileModal({ open, onClose, onSave, initialProfile }) {
+export default function ProfileModal({ open, onClose, onSave, initialProfile }: { open: boolean; onClose: () => void; onSave: (profile: any) => void; initialProfile?: any }) {
   const [height, setHeight] = useState(initialProfile?.height_cm || "");
   const [weight, setWeight] = useState(initialProfile?.weight_kg || "");
   const [sex, setSex] = useState(initialProfile?.sex || "");
