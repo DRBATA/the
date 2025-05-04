@@ -6,6 +6,10 @@
 !components/**
 !lib
 !lib/**
+!hooks
+!hooks/**
+!utils
+!utils/**
 !app/globals.css
 !app/favicon.ico
 !public/**
@@ -13,3 +17,4 @@
 !package-lock.json
 !next.config.ts
 !tsconfig.json
+!pages/api
