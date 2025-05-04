@@ -17,4 +17,5 @@
 !package-lock.json
 !next.config.ts
 !tsconfig.json
-!pages/api
+!pages
+!pages/**
