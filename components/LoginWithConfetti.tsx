@@ -13,9 +13,10 @@ export default function LoginWithConfetti() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  // On mount, try to load last used email from Dexie
   useEffect(() => {
-    db.meta.get("lastEmail").then((record: MetaRecord | undefined) => {
-      if (record) setEmail(record.value);
+    db.meta.orderBy('id').reverse().first().then(record => {
+      if (record?.email) setEmail(record.email);
     });
   }, []);
 
@@ -29,7 +30,8 @@ export default function LoginWithConfetti() {
           emailRedirectTo: `${location.origin}/auth/callback`,
         },
       });
-      await db.meta.put({ key: "lastEmail", value: loginEmail });
+      // Save email to Dexie for future pre-fill
+      await db.meta.put({ email: loginEmail, lastMagicLinkSent: new Date().toISOString() });
       setShowConfetti(true);
       setMessage(
         `🎉 Email sent! Check your inbox for your magic link.`
