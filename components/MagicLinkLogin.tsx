@@ -10,10 +10,17 @@ import { useEffect, useState } from "react";
 import Confetti from "react-confetti";
 
 import { supabase } from "../lib/supabaseClient";
+import { db, MetaRecord } from "../lib/dexieClient";
 
 const CONFETTI_COLORS = ["#00C2A0", "#00796B", "#FFD600", "#3DDC97"];
 
 export default function MagicLinkLogin() {
+  // On mount, try to load last used email from Dexie
+  useEffect(() => {
+    db.meta.orderBy('id').reverse().first().then(record => {
+      if (record?.email) setEmail(record.email);
+    });
+  }, []);
   const [email, setEmail] = useState("");
   const [showConfetti, setShowConfetti] = useState(false);
   const [message, setMessage] = useState("");
@@ -43,7 +50,8 @@ export default function MagicLinkLogin() {
           emailRedirectTo: `${location.origin}/auth/callback`,
         },
       });
-      
+      // Save email to Dexie for future pre-fill
+      await db.meta.put({ email: loginEmail, lastMagicLinkSent: new Date().toISOString() });
       setShowConfetti(true);
       setMessage(
         `🎉 Email sent! Check your inbox for your magic link.`
