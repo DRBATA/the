@@ -1,16 +1,38 @@
 "use client";
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+// If not already installed, run: npm install react-datepicker
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
-export default function ProfileModal({ open, onClose, onSave, initialProfile }: { open: boolean; onClose: () => void; onSave: (profile: any) => void; initialProfile?: any }) {
-  const [height, setHeight] = useState(initialProfile?.height_cm || "");
-  const [weight, setWeight] = useState(initialProfile?.weight_kg || "");
-  const [sex, setSex] = useState(initialProfile?.sex || "");
-  const [dob, setDob] = useState(initialProfile?.date_of_birth || "");
+
+
+export default function ProfileModal({ open, userId, onClose, onSave, initialProfile }: { open: boolean; userId: string; onClose: () => void; onSave: (profile: any) => void; initialProfile?: any }) {
+  const [dob, setDob] = useState(initialProfile?.date_of_birth ? new Date(initialProfile.date_of_birth) : null);
+  const [error, setError] = useState("");
+  const [age, setAge] = useState<number|null>(null);
 
   const handleSave = () => {
-    onSave({ height_cm: height, weight_kg: weight, sex, date_of_birth: dob });
+    if (dob) {
+      // Save full date
+      const birthDate = dob instanceof Date ? dob : new Date(dob);
+      const today = new Date();
+      let calcAge = today.getFullYear() - birthDate.getFullYear();
+      const m = today.getMonth() - birthDate.getMonth();
+      if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) calcAge--;
+      setError("");
+      setAge(calcAge);
+      onSave({
+        date_of_birth: birthDate.toISOString().slice(0, 10),
+        birthdate_is_exact: true
+      });
+    } else {
+      setError("Please enter your date of birth.");
+      return;
+    }
   };
+
+
 
   return (
     <AnimatePresence>
@@ -33,11 +55,34 @@ export default function ProfileModal({ open, onClose, onSave, initialProfile }: 
             </button>
             <h2 className="text-cyan-300 text-xl mb-4 neon-text">Complete Your Profile</h2>
             <div className="flex flex-col gap-3">
-              <input className="rounded px-3 py-2 bg-white/40 text-cyan-900 placeholder-cyan-400" placeholder="Height (cm)" value={height} onChange={e => setHeight(e.target.value)} />
-              <input className="rounded px-3 py-2 bg-white/40 text-cyan-900 placeholder-cyan-400" placeholder="Weight (kg)" value={weight} onChange={e => setWeight(e.target.value)} />
-              <input className="rounded px-3 py-2 bg-white/40 text-cyan-900 placeholder-cyan-400" placeholder="Sex" value={sex} onChange={e => setSex(e.target.value)} />
-              <input className="rounded px-3 py-2 bg-white/40 text-cyan-900 placeholder-cyan-400" placeholder="Date of Birth" type="date" value={dob} onChange={e => setDob(e.target.value)} />
-            </div>
+  {dob && (
+  <div className="mb-2 text-cyan-800 text-center font-semibold">
+    Selected: {dob.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' })}
+  </div>
+)}
+<DatePicker
+  selected={dob}
+  onChange={date => setDob(date)}
+  dateFormat="yyyy-MM-dd"
+  showMonthDropdown
+  showYearDropdown
+  dropdownMode="select"
+  maxDate={new Date()}
+  placeholderText="Select date..."
+  customInput={
+    <button
+      type="button"
+      className="rounded px-3 py-2 bg-white/40 text-cyan-900 placeholder-cyan-400 w-full border-2 border-cyan-300 text-left focus:outline-none focus:ring-2 focus:ring-cyan-400"
+      style={{ minHeight: 40 }}
+    >
+      {dob ? dob.toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric' }) : 'Select date...'}
+    </button>
+  }
+/>
+{error && <div className="text-red-500 text-sm text-center mt-2">{error}</div>}
+
+
+</div>
             <button className="mt-6 w-full py-2 rounded bg-cyan-400 text-white neon-text font-bold" onClick={handleSave}>
               Save
             </button>

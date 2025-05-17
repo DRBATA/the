@@ -1,166 +1,137 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import MagicLinkLogin from "../components/MagicLinkLogin";
-import ProfileModal from "../components/ProfileModal";
-import DrinkModal from "../components/DrinkModal";
-import { supabase } from "../lib/supabaseClient";
+import React, { useState, useRef, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { createClient } from "@supabase/supabase-js";
 
-export default function Home() {
-  const [user, setUser] = useState<any>(null);
-  const [dashboard, setDashboard] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
+const supabase = createClient(supabaseUrl, supabaseAnonKey);
+
+const SYSTEM_PROMPT = `You are Aqua, the Hydration Coach. Greet the user warmly. Guide them through hydration planning by asking about their recent activity (heat, alcohol, gym, diet, etc). If their answers match: heat, alcohol, or moderate gym, recommend the 1stick video. If not, offer a hydration tip. Never recommend a video for heavy gym or good diet/hydration. Ask for their email at the start. Keep it conversational and friendly.`;
+
+function getMatchingTags(userAnswers) {
+  const tags = [];
+  if (/heat|sun|hot/i.test(userAnswers)) tags.push("heat");
+  if (/alcohol|drink/i.test(userAnswers)) tags.push("alcohol");
+  if (/moderate gym|light gym|workout/i.test(userAnswers)) tags.push("moderate_gym");
+  return tags;
+}
+
+export default function Page() {
+  const [messages, setMessages] = useState([
+    { role: "assistant", content: "Hi! I'm Aqua, your Hydration Coach. What's your email to get started?" },
+  ]);
+  const [input, setInput] = useState("");
+  const [email, setEmail] = useState("");
+  const [waiting, setWaiting] = useState(false);
+  const chatEndRef = useRef(null);
 
   useEffect(() => {
-    const getUserAndDashboard = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
-      if (user) {
-        const res = await fetch(`/api/dashboard?user_id=${user.id}`);
-        const dash = await res.json();
-        setDashboard(dash);
-      }
-      setLoading(false);
-    };
-    getUserAndDashboard();
-  }, []);
-
-  if (loading) {
-    return <main style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0074D9", color: "white" }}>Loading...</main>;
-  }
-
-  if (!user) {
-    return (
-      <main
-        style={{
-          minHeight: "100vh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          background: "#0074D9",
-        }}
-      >
-        <MagicLinkLogin />
-      </main>
-    );
-  }
-
-  // Neon-frosted dashboard panel with modals and neon water drop button
-  const [showProfile, setShowProfile] = useState(false);
-  const [showDrink, setShowDrink] = useState(false);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [aiOutput, setAiOutput] = useState<{plan?: string, advice?: string} | null>(null);
-
-  // Show profile modal if any required field is missing
-  useEffect(() => {
-    if (dashboard && (!dashboard.profile?.height_cm || !dashboard.profile?.weight_kg || !dashboard.profile?.sex || !dashboard.profile?.date_of_birth)) {
-      setShowProfile(true);
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [dashboard]);
+  }, [messages]);
 
-  // Water drop SVG
-  const WaterDrop = ({glow}: {glow?: boolean}) => (
-    <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M32 6C32 6 16 28 16 40C16 51.0457 24.9543 60 36 60C47.0457 60 56 51.0457 56 40C56 28 40 6 32 6Z" stroke="#00FFFF" strokeWidth="4" strokeLinecap="round" strokeLinejoin="round" fill="#001428" filter={glow ? "drop-shadow(0 0 16px #00FFFF)" : "none"}/>
-      <circle cx="32" cy="44" r="10" fill="#00FFFF55" />
-    </svg>
-  );
+  // OpenAI call
+  async function getAgentResponse(history) {
+    setWaiting(true);
+    try {
+      const apiRes = await fetch("/api/agent", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ history }),
+      });
+      const data = await apiRes.json();
+      setWaiting(false);
+      return data.response;
+    } catch {
+      setWaiting(false);
+      return "Sorry, there was a problem contacting Aqua.";
+    }
+  }
 
-  // Neon panel and controls
+  // Supabase video fetch
+  async function fetchVideo(tags) {
+    if (!tags.length) return null;
+    const { data } = await supabase
+      .from("videos")
+      .select("*")
+      .overlaps("tags", tags)
+      .limit(1);
+    return data && data.length > 0 ? data[0] : null;
+  }
+
+  async function handleSend() {
+    if (!input.trim()) return;
+    const newMessages = [...messages, { role: "user", content: input }];
+    setMessages(newMessages);
+    setInput("");
+
+    // Save email if not yet present
+    if (!email && /@/.test(input)) setEmail(input.trim());
+
+    // If we have an email, try to detect tags for video
+    let video = null;
+    if (email || /@/.test(input)) {
+      const tags = getMatchingTags(input);
+      video = await fetchVideo(tags);
+    }
+
+    // Compose history for OpenAI
+    const history = [
+      { role: "system", content: SYSTEM_PROMPT },
+      ...newMessages.map(m => ({ role: m.role, content: m.content })),
+    ];
+
+    let agentResponse = await getAgentResponse(history);
+    // If video is appropriate, append video recommendation
+    if (video) {
+      agentResponse += `\n\nRecommended video: ${video.title}\n`;
+      agentResponse += `<video controls width='320' src='${video.url}' style='margin-top:12px;border-radius:12px;box-shadow:0 0 24px #06b6d4;'></video>`;
+    }
+    setMessages([...newMessages, { role: "assistant", content: agentResponse }]);
+  }
+
   return (
-    <main
-      className="min-h-screen flex flex-col justify-end items-center relative"
-      style={{
-        background: `url('https://hebbkx1anhila5yf.public.blob.vercel-storage.com/3-Qe3ko5ZImDFe4txiZ9Pi2nTsq1GWDu.png') center/cover no-repeat`,
-      }}
-    >
-      {/* Neon water drop AI/info button */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-36 z-20 flex flex-col items-center">
-        <button
-          className="rounded-full p-2 bg-white/10 border-2 border-cyan-300 neon-box"
-          style={{ boxShadow: aiLoading ? "0 0 32px 8px #00FFFF" : "0 0 12px 2px #00FFFF" }}
-          onClick={async () => {
-            setAiLoading(true);
-            const res = await fetch(`/api/dashboard?user_id=${user.id}`);
-            const dash = await res.json();
-            setAiOutput({ plan: dash.plan, advice: dash.advice });
-            setAiLoading(false);
-          }}
-          aria-label="Get AI hydration advice"
-        >
-          <WaterDrop glow={aiLoading} />
-        </button>
-        <div className="mt-2 text-center text-cyan-200 neon-text text-sm font-semibold">
-          {aiLoading ? "Thinking..." : "AI Hydration Advice"}
+    <div className="min-h-screen w-full flex items-center justify-center water-background p-4">
+      <div className="relative max-w-lg w-full rounded-3xl shadow-2xl overflow-hidden" style={{ zIndex: 2 }}>
+        <div className="absolute inset-0 rounded-3xl bg-cyan-400 opacity-30 blur-md water-bar-glow"></div>
+        <div className="relative z-10 p-8 water-bar-card flex flex-col gap-4">
+          {/* Persona header */}
+          <div className="flex items-center gap-4 mb-2">
+            <div className="w-14 h-14 rounded-full bg-cyan-300 flex items-center justify-center text-3xl shadow-lg border-2 border-white/60">
+              💧
+            </div>
+            <div>
+              <div className="font-bold text-lg text-white">Aqua</div>
+              <div className="text-cyan-100 text-xs">Your Hydration Coach</div>
+            </div>
+          </div>
+          {/* Chat area */}
+          <div className="flex-1 min-h-[240px] max-h-[320px] overflow-y-auto flex flex-col gap-2 pb-2">
+            {messages.map((m, i) => (
+              <div key={i} className={`rounded-xl px-4 py-2 my-1 ${m.role === "assistant" ? "bg-cyan-900/60 text-cyan-50 self-start" : "bg-white/80 text-cyan-900 self-end"}`}
+                dangerouslySetInnerHTML={{ __html: m.content.replace(/\n/g, '<br/>') }} />
+            ))}
+            <div ref={chatEndRef}></div>
+          </div>
+          {/* Input */}
+          <form className="flex gap-2 mt-2" onSubmit={e => { e.preventDefault(); handleSend(); }}>
+            <Input
+              className="flex-1 water-bar-input"
+              placeholder={waiting ? "Thinking..." : "Type your message..."}
+              value={input}
+              onChange={e => setInput(e.target.value)}
+              disabled={waiting}
+            />
+            <Button type="submit" className="water-bar-button px-5" disabled={waiting || !input.trim()}>
+              Send
+            </Button>
+          </form>
         </div>
       </div>
-
-      {/* Neon/frosted bottom panel */}
-      <div
-        className="fixed bottom-0 left-0 right-0 z-30 flex flex-row items-center justify-around py-4 px-2"
-        style={{
-          background: "rgba(255,255,255,0.18)",
-          borderRadius: 24,
-          boxShadow: "0 0 32px 6px #00FFF7, 0 2px 24px 0 #0074D980",
-          backdropFilter: "blur(18px)",
-          border: "2px solid rgba(0,255,255,0.25)",
-          maxWidth: 480,
-          margin: "0 auto"
-        }}
-      >
-        {/* Profile modal button */}
-        <button
-          className="rounded-full p-3 bg-white/10 border-2 border-cyan-300 neon-box text-2xl"
-          onClick={() => setShowProfile(true)}
-          aria-label="Edit Profile"
-        >
-          👤
-        </button>
-        {/* Drink log modal button */}
-        <button
-          className="rounded-full p-3 bg-white/10 border-2 border-cyan-300 neon-box text-2xl"
-          onClick={() => setShowDrink(true)}
-          aria-label="Log Drink"
-        >
-          🥤
-        </button>
-      </div>
-
-      {/* Neon triangle info display (replaces old panel) */}
-      <div className="absolute left-1/2 -translate-x-1/2 bottom-56 z-10 flex flex-col items-center">
-        <svg width="120" height="104" viewBox="0 0 120 104" fill="none">
-          <polygon points="60,8 112,96 8,96" stroke="#00FFFF" strokeWidth="5" fill="#001428cc" filter="drop-shadow(0 0 16px #00FFFF)" />
-        </svg>
-        <div className="absolute top-12 left-1/2 -translate-x-1/2 w-72 text-center text-cyan-100 neon-text text-base font-semibold px-2">
-          <div><b>Plan:</b> {aiOutput?.plan || dashboard?.plan}</div>
-          <div className="mt-1"><b>Advice:</b> {aiOutput?.advice || dashboard?.advice}</div>
-        </div>
-      </div>
-
-      {/* Modals */}
-      <ProfileModal
-        open={showProfile}
-        onClose={() => setShowProfile(false)}
-        onSave={async (profile: any) => {
-          await supabase.from("profiles").update(profile).eq("id", user.id);
-          setShowProfile(false);
-          // Refresh dashboard
-          const res = await fetch(`/api/dashboard?user_id=${user.id}`);
-          setDashboard(await res.json());
-        }}
-        initialProfile={dashboard?.profile}
-      />
-      <DrinkModal
-        open={showDrink}
-        onClose={() => setShowDrink(false)}
-        onSave={async (drink: any) => {
-          await supabase.from("hydration_logs").insert({ ...drink, user_id: user.id, timestamp: new Date().toISOString() });
-          setShowDrink(false);
-          // Refresh dashboard
-          const res = await fetch(`/api/dashboard?user_id=${user.id}`);
-          setDashboard(await res.json());
-        }}
-      />
-    </main>
+    </div>
   );
 }

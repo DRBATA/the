@@ -1,0 +1,82 @@
+/* Enhanced frosted glass effect */
+.water-bar-card {
+  backdrop-filter: blur(16px);
+  background: linear-gradient(
+    135deg,
+    rgba(255, 255, 255, 0.2) 0%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.water-bar-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Enhanced glow effect */
+.water-bar-glow {
+  background: radial-gradient(
+    circle at center,
+    rgba(6, 182, 212, 0.6) 0%,
+    rgba(6, 182, 212, 0.2) 50%,
+    rgba(6, 182, 212, 0) 100%
+  );
+  filter: blur(20px);
+}
+
+/* Improved form inputs */
+.water-bar-input {
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: white;
+  transition: all 0.3s ease;
+}
+.water-bar-input:focus {
+  background-color: rgba(255, 255, 255, 0.25);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.3);
+}
+
+/* Button styling */
+.water-bar-button {
+  background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%);
+  border: none;
+  color: white;
+  transition: all 0.3s ease;
+}
+.water-bar-button:hover {
+  background: linear-gradient(135deg, #0891b2 0%, #0e7490 100%);
+  transform: translateY(-1px);
+}
+
+/* Table styling */
+.water-bar-table {
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.water-bar-table th {
+  background-color: rgba(6, 182, 212, 0.3);
+  padding: 8px;
+  font-weight: 500;
+}
+.water-bar-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.water-bar-table tr:hover td {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Background gradient */
+.water-background {
+  background: linear-gradient(135deg, #0ea5e9 0%, #0891b2 50%, #0c4a6e 100%);
+}
+
+/* Fallback for unsupported backdrop-filter */
+@supports not (backdrop-filter: blur(12px)) {
+  .water-bar-card {
+    background-color: rgba(0, 0, 0, 0.8);
+  }
+}

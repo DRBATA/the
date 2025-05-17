@@ -29,16 +29,19 @@ import { chooseVenueOffer } from "../utils/venueSelector";
 export interface UserProfile {
   id: string;
   email: string;
-  username?: string;
   water_subscription_status?: string;
-  membership_status?: string;
-  water_bottle_saved: number;
-  medical_exemption?: boolean;
-  confirmed_address?: string;
-  whatsapp_number?: string;
-  created_at?: string;
   stripe_customer_id?: string;
-} 
+  date_of_birth?: string;
+  sex?: string;
+  name?: string;
+  tone?: string;
+  height_cm?: number;
+  weight_kg?: number;
+  body_fat_pct?: number;
+  water_bottle_saved?: number;
+  carbon_saved?: number;
+}
+ 
 
 interface UserContextType {
   user: UserProfile | null;
@@ -68,7 +71,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         // Fetch profile from 'profiles' table
         let { data, error } = await supabase
           .from("profiles")
-          .select("id, water_bottle_saved, water_subscription_status, stripe_customer_id")
+          .select("id, email, water_subscription_status, stripe_customer_id, date_of_birth, sex, name, tone, height_cm, weight_kg, body_fat_pct, water_bottle_saved, carbon_saved")
           .eq("id", session.user.id)
           .single();
         if (error?.code === 'PGRST116' || error?.code === '42703' || error?.message?.includes('does not exist')) {
@@ -86,18 +89,19 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (data) {
           setUser({
             id: data.id,
-            email: session.user.email ?? "",
+            email: data.email ?? session.user.email ?? "",
             water_subscription_status: data.water_subscription_status,
-            water_bottle_saved: data.water_bottle_saved || 0,
             stripe_customer_id: data.stripe_customer_id,
+            date_of_birth: data.date_of_birth,
+            sex: data.sex,
+            name: data.name,
+            tone: data.tone,
+            height_cm: data.height_cm,
+            weight_kg: data.weight_kg,
+            body_fat_pct: data.body_fat_pct,
+            water_bottle_saved: data.water_bottle_saved || 0,
+            carbon_saved: data.carbon_saved,
           });
-          // Auto-sync guest data to Supabase on login (only once per session)
-          if (!window.__guestDataSynced) {
-            window.__guestDataSynced = true;
-            syncGuestDataToSupabase(data.id).then(() => {
-              window.dispatchEvent(new CustomEvent("guest-sync-toast", { detail: { message: "Your data has been saved to your account!" } }));
-            });
-          }
         } else {
           // No profile yet or other fetch error – still consider the user logged in with minimal data
           setUser({
@@ -182,16 +186,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
       // Fetch fresh profile from Supabase after update
       let { data, error } = await supabase
         .from("profiles")
-        .select("id, water_bottle_saved, water_subscription_status, stripe_customer_id")
+        .select("id, email, water_subscription_status, stripe_customer_id, date_of_birth, sex, name, tone, height_cm, weight_kg, body_fat_pct, water_bottle_saved, carbon_saved")
         .eq("id", user.id)
         .single();
       if (!error && data) {
         setUser({
           id: data.id,
-          email: session.user.email ?? "",
+          email: data.email ?? session.user.email ?? "",
           water_subscription_status: data.water_subscription_status,
-          water_bottle_saved: data.water_bottle_saved || 0,
           stripe_customer_id: data.stripe_customer_id,
+          date_of_birth: data.date_of_birth,
+          sex: data.sex,
+          name: data.name,
+          tone: data.tone,
+          height_cm: data.height_cm,
+          weight_kg: data.weight_kg,
+          body_fat_pct: data.body_fat_pct,
+          water_bottle_saved: data.water_bottle_saved || 0,
+          carbon_saved: data.carbon_saved,
         });
       }
     }

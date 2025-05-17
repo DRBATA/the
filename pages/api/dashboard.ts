@@ -12,6 +12,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return res.status(400).json({ error: 'Missing user_id' });
   }
 
+  // Sync persistent stats from hydration_logs before loading profile
+  // 1. Aggregate from hydration_logs
+  const { data: logs, error: logsError } = await supabase
+    .from('hydration_logs')
+    .select('carbon_kg, bottle_saved')
+    .eq('user_id', user_id);
+
+  let water_bottle_saved = 0;
+  let carbon_saved = 0;
+  if (!logsError && logs) {
+    for (const log of logs) {
+      if (log.bottle_saved) {
+        water_bottle_saved += 1;
+        carbon_saved += log.carbon_kg ?? 0;
+      }
+    }
+    // 2. Update the profile with the latest totals
+    await supabase
+      .from('profiles')
+      .update({ water_bottle_saved, carbon_saved })
+      .eq('id', user_id);
+  }
+
   // Fetch profile
   const { data: profile } = await supabase
     .from('profiles')
@@ -47,8 +70,14 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const electrolyte_target_mg = 800;
 
   // Compose system prompt and user message
-  const SYSTEM_PROMPT = `You are a hydration and wellness dashboard assistant. Always return a JSON object with all dashboard fields.`;
-  const user_msg = `Update my dashboard. My profile: ${JSON.stringify(profile)}. Today's hydration: ${hydration_today_ml} ml; electrolytes: ${electrolyte_today_mg} mg. Weight: ${weight_kg} kg.`;
+  let SYSTEM_PROMPT = `You are a hydration and wellness dashboard assistant. Always return a JSON object with all dashboard fields.`;
+  let user_msg = `Update my dashboard. My profile: ${JSON.stringify(profile)}. Today's hydration: ${hydration_today_ml} ml; electrolytes: ${electrolyte_today_mg} mg. Weight: ${weight_kg} kg.`;
+
+  if (profile?.date_of_birth) {
+    SYSTEM_PROMPT = `You are a hydration and wellness dashboard assistant. Always return a JSON object with at least these fields: { plan: string, advice: string, recommended_liters: number }.`;
+    user_msg = `Given a user born on ${profile.date_of_birth}${profile?.weight_kg ? ` and weighing ${profile.weight_kg} kg` : ""}, calculate and recommend an exact daily water intake (in liters) for them. Return a short, friendly \"plan\" (e.g., \"Aim for 2.4L per day\") and a motivational \"advice\" message. Always return a JSON object: { plan: string, advice: string, recommended_liters: number }`;
+    console.log("[OpenAI] Calling with:", { SYSTEM_PROMPT, user_msg });
+  }
 
   // Tool schemas
   const getHydrationStatsSchema = {
@@ -115,15 +144,24 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       try {
         const aiJson = JSON.parse(aiOut);
         dashboardJson = { ...dashboardJson, ...aiJson };
+        // If AI returned recommended_liters, update hydration_target_ml
+        if (typeof aiJson.recommended_liters === "number") {
+          dashboardJson.hydration_target_ml = Math.round(aiJson.recommended_liters * 1000);
+        }
       } catch {}
     } else if (response.output?.[0]?.content?.[0]?.text) {
       // Try to parse JSON from direct output
       try {
         const aiJson = JSON.parse(response.output[0].content[0].text);
         dashboardJson = { ...dashboardJson, ...aiJson };
+        // If AI returned recommended_liters, update hydration_target_ml
+        if (typeof aiJson.recommended_liters === "number") {
+          dashboardJson.hydration_target_ml = Math.round(aiJson.recommended_liters * 1000);
+        }
       } catch {}
     }
   } catch (e) {
+    console.error("OpenAI error:", e); // Log the error for debugging
     // fallback if OpenAI fails
   }
 
