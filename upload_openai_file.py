@@ -1,7 +1,7 @@
 import requests
 
 headers = {
-    "Authorization": f"Bearer {os.environ["OPENAI_API_KEY"]}
+    "Authorization": f"Bearer {os.environ['OPENAI_API_KEY']}"
 }
 files = {
     "file": open("c:/Users/azamb/OneDrive/Desktop/HLH/tmpae - Copy/agentic-workflow-knowledge-base.md", "rb")
